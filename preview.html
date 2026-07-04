@@ -2607,12 +2607,30 @@ function createHydratedState(seedState, storage = globalThis.localStorage) {
     if (Array.isArray(projects) && projects.length > 0) {
       const hasFolders = projects.some((p) => Array.isArray(p.folders) && p.folders.length > 0);
       if (!hasFolders) {
-        // Old data format — clear and use seed
         try { storage.removeItem(STORAGE_KEY); } catch {}
         const fresh = structuredClone(seedState);
         fresh.checkin = evaluateCheckinStatus(fresh.studyLog);
         return fresh;
       }
+    }
+
+    // Data migration: rename old project titles
+    const migrations = {
+      "期末英语总复习": "英语练习清单",
+      "CET 期末英语总复习": "英语练习清单",
+    };
+    let migrated = false;
+    if (Array.isArray(projects)) {
+      for (const p of projects) {
+        if (migrations[p.title]) {
+          p.title = migrations[p.title];
+          migrated = true;
+        }
+      }
+    }
+    if (migrated) {
+      // Persist the migration immediately
+      try { persistState(baseState, storage); } catch {}
     }
   } catch {
     return {
