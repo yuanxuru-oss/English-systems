@@ -1,0 +1,212 @@
+.app-shell {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  padding: 32px 24px;
+  border-right: 1px solid rgba(93, 67, 31, 0.12);
+  background: rgba(252, 247, 240, 0.9);
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+
+.main-panel {
+  padding: 28px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.topbar h2,
+.brand-block h1,
+.hero-copy h3,
+.paper-panel h3,
+.paper-panel h4 {
+  font-family: "Times New Roman", serif;
+  letter-spacing: -0.03em;
+}
+
+.brand-block h1 {
+  white-space: nowrap;
+  font-size: clamp(1rem, 2.2vw, 1.35rem);
+}
+
+.brand-kicker,
+.eyebrow,
+.label {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.brand-copy,
+.paper-panel p,
+.status-line,
+.preview-empty,
+.activity-list {
+  font-family: "Segoe UI", sans-serif;
+}
+
+.paper-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background-image:
+    radial-gradient(circle at 20% 18%, rgba(86, 69, 42, 0.15) 0 1px, transparent 1px),
+    radial-gradient(circle at 72% 38%, rgba(86, 69, 42, 0.1) 0 1px, transparent 1px),
+    radial-gradient(circle at 55% 78%, rgba(86, 69, 42, 0.12) 0 1px, transparent 1px),
+    radial-gradient(circle at 10% 68%, rgba(86, 69, 42, 0.08) 0 0.5px, transparent 0.5px),
+    radial-gradient(circle at 88% 8%, rgba(86, 69, 42, 0.09) 0 0.5px, transparent 0.5px);
+  background-size: 28px 28px, 34px 34px, 30px 30px, 36px 36px, 40px 40px;
+  pointer-events: none;
+}
+
+.brand-block,
+.nav-list,
+.project-chip,
+.sidebar-sketch {
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar-sketch {
+  margin: 20px 0 28px;
+  padding: 18px;
+  border: 1.5px dashed rgba(93, 67, 31, 0.22);
+  border-radius: 26px 18px 24px 28px;
+  background: rgba(255, 251, 244, 0.58);
+  transform: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    0 2px 8px rgba(82,60,29,0.06);
+}
+
+/* Hand-drawn style scribble divider */
+.sketch-divider {
+  position: relative;
+  height: 4px;
+  margin: 18px 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 12px,
+    rgba(183, 91, 61, 0.16) 12px,
+    rgba(183, 91, 61, 0.16) 13px
+  );
+  border: none;
+}
+
+.sketch-divider::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(183, 91, 61, 0.12);
+  border-radius: 1px;
+}
+
+.sketch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(93, 67, 31, 0.18);
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.sketch-tiles,
+.sketch-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.sketch-tiles span {
+  display: block;
+  padding: 14px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(93, 67, 31, 0.14);
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.sketch-stat {
+  text-align: center;
+  padding: 10px 6px;
+  border-radius: 14px 18px 12px 16px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(93, 67, 31, 0.12);
+}
+
+.sketch-stat-num {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: "Times New Roman", serif;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+
+.sketch-stat-num.is-checked {
+  color: var(--green);
+}
+
+.sketch-stat-label {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.checkin-state {
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 0.95rem;
+}
+
+.checkin-state.is-checked {
+  color: var(--green);
+  border-color: rgba(86, 121, 91, 0.35);
+  background: rgba(86, 121, 91, 0.08);
+}
+
+.project-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-chip span {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.project-chip strong {
+  display: block;
+  font-size: 0.95rem;
+}
