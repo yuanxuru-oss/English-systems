@@ -266,6 +266,20 @@ mark {
   font-size: 0.95rem;
 }
 
+/* --- Version Badge --- */
+.version-badge {
+  margin-top: 16px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-family: var(--font-system);
+  letter-spacing: 0.04em;
+  border: 1px dashed rgba(183, 91, 61, 0.2);
+  border-radius: 10px 14px 8px 12px;
+  display: inline-block;
+  opacity: 0.7;
+}
+
 .paper-panel {
   background: var(--panel);
   border: 1px solid rgba(104, 81, 47, 0.16);
@@ -2582,6 +2596,7 @@ function createAppShell(store, navigate) {
           <strong>${project?.title ?? "未选择项目"}</strong>
         </div>
       </div>
+      <div class="version-badge">v1.0.0</div>
     </aside>
     <main class="main-panel">
       <header class="topbar">

@@ -64,6 +64,7 @@ export function createAppShell(store, navigate) {
           <strong>${project?.title ?? "未选择项目"}</strong>
         </div>
       </div>
+      <div class="version-badge">v1.0.0</div>
     </aside>
     <main class="main-panel">
       <header class="topbar">
