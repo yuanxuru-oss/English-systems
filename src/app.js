@@ -1,6 +1,7 @@
 import { createStore } from "./core/store.js";
 import { createHydratedState, persistState } from "./core/persistence.js";
 import { createAppShell } from "./components/layout/app-shell.js";
+import { initQuickNote } from "./components/quick-note.js";
 import { renderDashboard } from "./modules/dashboard/dashboard.js";
 import { renderProject } from "./modules/project/project.js";
 import { renderImportCenter } from "./modules/import/import-center.js";
@@ -81,3 +82,6 @@ try {
   shell2.querySelector("[data-shell-content]").appendChild(dash);
   app.replaceChildren(shell2);
 }
+
+// Initialize quick-note overlay after app is mounted
+initQuickNote();

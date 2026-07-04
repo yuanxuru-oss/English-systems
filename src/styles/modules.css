@@ -1509,6 +1509,142 @@ trans-mark.trans-match,
   font-style: italic;
 }
 
+/* --- Quick Note Overlay --- */
+
+.quick-note-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(183, 91, 61, 0.3);
+  background: var(--paper);
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(93, 67, 31, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.quick-note-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 20px rgba(93, 67, 31, 0.18);
+}
+
+.quick-note-toggle.has-notes::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.quick-note-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(93, 67, 31, 0.15);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.quick-note-panel {
+  width: 100%;
+  max-width: 560px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px 28px 18px 24px;
+  background: var(--paper);
+  border: 1.5px solid rgba(104, 81, 47, 0.15);
+  box-shadow: 0 8px 40px rgba(93, 67, 31, 0.15);
+  overflow: hidden;
+}
+
+.quick-note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(104, 81, 47, 0.08);
+}
+
+.quick-note-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.quick-note-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quick-note-hint {
+  font-size: 0.7rem;
+  color: var(--muted);
+  background: rgba(104, 81, 47, 0.06);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.quick-note-close {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.quick-note-close:hover {
+  background: rgba(183, 91, 61, 0.08);
+  color: var(--ink);
+}
+
+.quick-note-textarea {
+  flex: 1;
+  min-height: 240px;
+  padding: 18px 20px;
+  border: none;
+  border-radius: 0;
+  background: rgba(255, 248, 241, 0.4);
+  font-family: var(--font-system);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+}
+
+.quick-note-textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.quick-note-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-top: 1px solid rgba(104, 81, 47, 0.08);
+}
+
+.quick-note-status {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
 @media (max-width: 1100px) {
   .app-shell,
   .hero-panel,

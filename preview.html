@@ -1938,6 +1938,142 @@ trans-mark.trans-match,
   font-style: italic;
 }
 
+/* --- Quick Note Overlay --- */
+
+.quick-note-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(183, 91, 61, 0.3);
+  background: var(--paper);
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(93, 67, 31, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.quick-note-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 20px rgba(93, 67, 31, 0.18);
+}
+
+.quick-note-toggle.has-notes::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.quick-note-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(93, 67, 31, 0.15);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.quick-note-panel {
+  width: 100%;
+  max-width: 560px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px 28px 18px 24px;
+  background: var(--paper);
+  border: 1.5px solid rgba(104, 81, 47, 0.15);
+  box-shadow: 0 8px 40px rgba(93, 67, 31, 0.15);
+  overflow: hidden;
+}
+
+.quick-note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(104, 81, 47, 0.08);
+}
+
+.quick-note-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.quick-note-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quick-note-hint {
+  font-size: 0.7rem;
+  color: var(--muted);
+  background: rgba(104, 81, 47, 0.06);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.quick-note-close {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.quick-note-close:hover {
+  background: rgba(183, 91, 61, 0.08);
+  color: var(--ink);
+}
+
+.quick-note-textarea {
+  flex: 1;
+  min-height: 240px;
+  padding: 18px 20px;
+  border: none;
+  border-radius: 0;
+  background: rgba(255, 248, 241, 0.4);
+  font-family: var(--font-system);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+}
+
+.quick-note-textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.quick-note-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-top: 1px solid rgba(104, 81, 47, 0.08);
+}
+
+.quick-note-status {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
 @media (max-width: 1100px) {
   .app-shell,
   .hero-panel,
@@ -2727,6 +2863,154 @@ function createAppShell(store, navigate) {
   });
 
   return shell;
+}
+
+const NOTES_KEY = "review-system:v2:quicknotes";
+
+function loadNotes() {
+  try {
+    const raw = localStorage.getItem(NOTES_KEY);
+    if (!raw) return "";
+    const parsed = JSON.parse(raw);
+    return parsed.content || "";
+  } catch {
+    return "";
+  }
+}
+
+function saveNotes(content) {
+  try {
+    localStorage.setItem(NOTES_KEY, JSON.stringify({ content, updatedAt: new Date().toISOString() }));
+  } catch {}
+}
+
+function initQuickNote() {
+  // Don't create if already exists
+  if (document.querySelector(".quick-note-overlay")) return;
+
+  const notes = loadNotes();
+
+  // Floating toggle button (always visible)
+  const toggle = document.createElement("button");
+  toggle.className = "quick-note-toggle";
+  toggle.title = "随手笔记 (Ctrl+Shift+N)";
+  toggle.innerHTML = "📝";
+  toggle.setAttribute("aria-label", "随手笔记");
+
+  // Overlay backdrop
+  const overlay = document.createElement("div");
+  overlay.className = "quick-note-overlay";
+  overlay.style.display = "none";
+
+  const panel = document.createElement("div");
+  panel.className = "quick-note-panel";
+  panel.innerHTML = `
+    <div class="quick-note-header">
+      <span class="quick-note-title">📝 随手笔记</span>
+      <div class="quick-note-actions">
+        <span class="quick-note-hint">Ctrl+Shift+N</span>
+        <button class="quick-note-close" title="关闭 (Esc)">✕</button>
+      </div>
+    </div>
+    <textarea
+      class="quick-note-textarea"
+      placeholder="记下此刻的想法、灵感、待办..."
+      spellcheck="true"
+    >${notes}</textarea>
+    <div class="quick-note-footer">
+      <span class="quick-note-status">已自动保存</span>
+      <button class="quick-note-clear secondary-btn">清空笔记</button>
+    </div>
+  `;
+
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+  document.body.appendChild(toggle);
+
+  const textarea = panel.querySelector(".quick-note-textarea");
+  const statusEl = panel.querySelector(".quick-note-status");
+  let saveTimer = null;
+
+  function doSave() {
+    saveNotes(textarea.value);
+    statusEl.textContent = "已自动保存 " + new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  // Autosave on input
+  textarea.addEventListener("input", () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 800);
+  });
+
+  // Save on blur
+  textarea.addEventListener("blur", doSave);
+
+  function open() {
+    overlay.style.display = "flex";
+    textarea.focus();
+  }
+
+  function close() {
+    doSave();
+    overlay.style.display = "none";
+  }
+
+  function toggleNote() {
+    if (overlay.style.display === "none" || !overlay.style.display) {
+      open();
+    } else {
+      close();
+    }
+  }
+
+  // Toggle button
+  toggle.addEventListener("click", toggleNote);
+
+  // Close button
+  panel.querySelector(".quick-note-close").addEventListener("click", close);
+
+  // Click backdrop to close
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) close();
+  });
+
+  // Clear button
+  panel.querySelector(".quick-note-clear").addEventListener("click", () => {
+    if (confirm("确定要清空笔记内容吗？")) {
+      textarea.value = "";
+      saveNotes("");
+      statusEl.textContent = "已清空";
+    }
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener("keydown", (e) => {
+    // Ctrl+Shift+N to toggle
+    if (e.ctrlKey && e.shiftKey && e.key === "N") {
+      e.preventDefault();
+      toggleNote();
+    }
+    // Esc to close
+    if (e.key === "Escape" && overlay.style.display === "flex") {
+      close();
+    }
+  });
+
+  // If there are existing notes, show a small indicator on toggle
+  if (notes.trim()) {
+    toggle.classList.add("has-notes");
+  }
+
+  // Update indicator on save
+  const origSave = doSave;
+  doSave = function () {
+    origSave();
+    if (textarea.value.trim()) {
+      toggle.classList.add("has-notes");
+    } else {
+      toggle.classList.remove("has-notes");
+    }
+  };
 }
 
 
@@ -4935,6 +5219,9 @@ try {
   shell2.querySelector("[data-shell-content]").appendChild(dash);
   app.replaceChildren(shell2);
 }
+
+// Initialize quick-note overlay after app is mounted
+initQuickNote();
 
 </script>
 </body>
