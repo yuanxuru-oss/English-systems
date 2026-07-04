@@ -1326,6 +1326,116 @@
   border: 1px dashed rgba(86, 121, 91, 0.2);
 }
 
+/* --- Translation Compare / Score --- */
+
+.trans-score-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  margin-bottom: 16px;
+  border-radius: 18px 22px 16px 20px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(104, 81, 47, 0.12);
+}
+
+.trans-score-label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.trans-score-meter {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(104, 81, 47, 0.08);
+  overflow: hidden;
+}
+
+.trans-score-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.5s ease;
+}
+
+.trans-score-num {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--accent);
+  min-width: 40px;
+  text-align: right;
+}
+
+.trans-compare-item {
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  border-radius: 18px 22px 16px 20px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(104, 81, 47, 0.12);
+}
+
+.trans-compare-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.trans-compare-source {
+  flex: 1;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.trans-compare-score {
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.trans-compare-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.trans-compare-col {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 248, 241, 0.6);
+  border: 1px solid rgba(104, 81, 47, 0.08);
+}
+
+.trans-compare-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.trans-compare-text {
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.trans-compare-text.trans-ref {
+  color: var(--ink);
+}
+
+.trans-compare-text.trans-user {
+  color: var(--ink);
+}
+
+trans-mark.trans-match,
+.trans-match {
+  background: rgba(86, 121, 91, 0.18);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
 /* --- Vocabulary --- */
 
 .vocab-list {
