@@ -46,17 +46,17 @@ export function renderSettings(store, navigate) {
       ${renderSection("💾 存储设置", `
         <div class="settings-row">
           <div class="settings-info">
-            <span class="settings-info-label">存储位置</span>
-            <span class="settings-info-value">浏览器 localStorage</span>
+            <span class="settings-info-label">存储键（可自定义）</span>
+            <span class="settings-info-desc">修改后数据将迁移至新键，刷新后生效</span>
           </div>
-          <div class="settings-info">
-            <span class="settings-info-label">存储键</span>
-            <code class="settings-key">${STORAGE_KEY}</code>
-          </div>
-          <div class="settings-info">
-            <span class="settings-info-label">已用空间</span>
-            <span class="settings-info-value">${storageSize}</span>
-          </div>
+        </div>
+        <div class="settings-storage-key-row">
+          <input type="text" class="settings-key-input" value="${STORAGE_KEY}" placeholder="review-system:v2" />
+          <button class="primary-btn" data-action="change-key">应用</button>
+        </div>
+        <div class="settings-info" style="margin-top:12px">
+          <span class="settings-info-label">已用空间</span>
+          <span class="settings-info-value">${storageSize}</span>
         </div>
         <div class="hero-actions">
           <button class="secondary-btn" data-action="export">导出数据 (JSON)</button>
@@ -126,10 +126,11 @@ export function renderSettings(store, navigate) {
 
   // --- Event handlers ---
 
-  // Font size options
+  // Font size options — re-render on click for instant visual feedback
   el.querySelectorAll("[data-setting='fontSize']").forEach((label) => {
     label.addEventListener("click", () => {
       store.actions.updateSettings({ fontSize: label.dataset.value });
+      navigate("settings");
     });
   });
 
@@ -185,6 +186,20 @@ export function renderSettings(store, navigate) {
       }
     };
     reader.readAsText(file);
+  });
+
+  // Change storage key
+  el.querySelector('[data-action="change-key"]')?.addEventListener("click", () => {
+    const newKey = el.querySelector('.settings-key-input')?.value?.trim();
+    if (!newKey) return;
+    if (newKey === STORAGE_KEY) return;
+    if (!confirm(`将数据从 "${STORAGE_KEY}" 迁移到 "${newKey}"，刷新后生效。确定？`)) return;
+    const existing = localStorage.getItem(STORAGE_KEY);
+    if (existing) {
+      localStorage.setItem(newKey, existing);
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    location.reload();
   });
 
   return el;

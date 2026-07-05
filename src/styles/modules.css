@@ -1689,6 +1689,36 @@ trans-mark.trans-match,
   font-family: monospace;
 }
 
+.settings-storage-key-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.settings-key-input {
+  flex: 1;
+  padding: 8px 14px;
+  border-radius: 14px 18px 12px 16px;
+  border: 1.5px dashed rgba(183, 91, 61, 0.25);
+  background: var(--paper);
+  font-family: monospace;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.settings-key-input:focus {
+  border-color: var(--accent);
+  border-style: solid;
+}
+
+.settings-info-desc {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
 .settings-option-group {
   display: flex;
   gap: 10px;
