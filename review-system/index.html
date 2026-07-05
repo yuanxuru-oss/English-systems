@@ -2686,6 +2686,72 @@ trans-mark.trans-match,
   font-size: 0.85rem;
 }
 
+/* --- Login gate --- */
+
+.login-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: linear-gradient(180deg, #f8f7f5 0%, #f5f4f1 100%);
+}
+
+.login-gate-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 36px;
+  text-align: center;
+}
+
+.login-gate-brand h1 {
+  font-family: "Times New Roman", serif;
+  font-size: 1.6rem;
+  color: var(--ink);
+  margin: 12px 0 4px;
+  white-space: nowrap;
+}
+
+.login-gate-slogan {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin: 0 0 0 0;
+}
+
+.login-gate-form {
+  margin-top: 20px;
+}
+
+.login-gate-form .label {
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.login-gate-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--line);
+  background: var(--paper-strong);
+  font-size: 1rem;
+  color: var(--ink);
+  text-align: center;
+  outline: none;
+  margin: 12px 0;
+}
+
+.login-gate-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(183, 91, 61, 0.1);
+}
+
+.login-gate-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  margin-top: 4px;
+}
+
 </style>
 </head>
   <body>
@@ -3150,8 +3216,11 @@ function createStore(initialState, options = {}) {
 
 
 
-const STORAGE_KEY = "review-system:v2";
-const STORAGE_VERSION = 2;
+const STORAGE_PREFIX = "review-system:v2";
+
+function storageKey(userName) {
+  return userName ? `${STORAGE_PREFIX}:${userName}` : null;
+}
 
 const PERSISTED_FIELDS = [
   "projects",
@@ -3174,7 +3243,7 @@ function pickPersistedState(state) {
 
 function serializePersistedState(state) {
   return JSON.stringify({
-    version: STORAGE_VERSION,
+    version: 2,
     savedAt: new Date().toISOString(),
     state: pickPersistedState(state),
   });
@@ -3182,21 +3251,24 @@ function serializePersistedState(state) {
 
 function createHydratedState(seedState, storage = globalThis.localStorage) {
   const baseState = structuredClone(seedState);
+  const userName = baseState.userName;
+  const key = storageKey(userName);
 
-  if (!storage || typeof storage.getItem !== "function") {
+  // No login → seed data only, no persistence
+  if (!userName || !key || !storage || typeof storage.getItem !== "function") {
     baseState.checkin = evaluateCheckinStatus(baseState.studyLog);
     return baseState;
   }
 
   try {
-    const raw = storage.getItem(STORAGE_KEY);
+    const raw = storage.getItem(key);
     if (!raw) {
       baseState.checkin = evaluateCheckinStatus(baseState.studyLog);
       return baseState;
     }
 
     const parsed = JSON.parse(raw);
-    if (parsed.version !== STORAGE_VERSION || !parsed.state || typeof parsed.state !== "object") {
+    if (parsed.version !== 2 || !parsed.state || typeof parsed.state !== "object") {
       baseState.checkin = evaluateCheckinStatus(baseState.studyLog);
       return baseState;
     }
@@ -3212,36 +3284,26 @@ function createHydratedState(seedState, storage = globalThis.localStorage) {
     if (Array.isArray(projects) && projects.length > 0) {
       const hasFolders = projects.some((p) => Array.isArray(p.folders) && p.folders.length > 0);
       if (!hasFolders) {
-        try { storage.removeItem(STORAGE_KEY); } catch {}
+        try { storage.removeItem(key); } catch {}
         const fresh = structuredClone(seedState);
         fresh.checkin = evaluateCheckinStatus(fresh.studyLog);
         return fresh;
       }
     }
 
-    // Data migration: rename old project titles
-    const migrations = {
-      "期末英语总复习": "英语练习清单",
-      "CET 期末英语总复习": "英语练习清单",
-    };
+    // Data migration
+    const migrations = { "期末英语总复习": "英语练习清单", "CET 期末英语总复习": "英语练习清单" };
     let migrated = false;
     if (Array.isArray(projects)) {
       for (const p of projects) {
-        if (migrations[p.title]) {
-          p.title = migrations[p.title];
-          migrated = true;
-        }
+        if (migrations[p.title]) { p.title = migrations[p.title]; migrated = true; }
       }
     }
     if (migrated) {
-      // Persist the migration immediately
       try { persistState(baseState, storage); } catch {}
     }
   } catch {
-    return {
-      ...baseState,
-      checkin: evaluateCheckinStatus(baseState.studyLog),
-    };
+    return { ...baseState, checkin: evaluateCheckinStatus(baseState.studyLog) };
   }
 
   return {
@@ -3253,12 +3315,10 @@ function createHydratedState(seedState, storage = globalThis.localStorage) {
 }
 
 function persistState(state, storage = globalThis.localStorage) {
-  if (!storage || typeof storage.setItem !== "function") {
-    return;
-  }
-
+  const key = storageKey(state.userName);
+  if (!key || !storage || typeof storage.setItem !== "function") return;
   try {
-    storage.setItem(STORAGE_KEY, serializePersistedState(state));
+    storage.setItem(key, serializePersistedState(state));
   } catch {}
 }
 
@@ -5264,7 +5324,7 @@ function renderProfile(store, navigate) {
   const totalFlashcards = state.flashcards.length;
   const masteredFlashcards = state.flashcards.filter((card) => card.mastered).length;
   const userName = state.userName || "";
-  const isLoggedIn = state.userName && state.userName.trim().length > 0;
+  const isLoggedIn = !!userName;
 
   el.innerHTML = `
     <section class="paper-panel profile-layout">
@@ -5305,25 +5365,14 @@ function renderProfile(store, navigate) {
 
       <div class="profile-section">
         <p class="label">账号设置</p>
-        ${isLoggedIn ? `
-          <div class="login-card">
-            <div class="login-card-header">
-              <span>👤 已登录</span>
-              <span class="text-muted">用户名：${userName}</span>
-            </div>
-            <p>你的学习数据保存在此浏览器中，可以在不同试卷间自由切换。</p>
-            <button class="secondary-btn" data-action="logout">退出登录</button>
+        <div class="login-card">
+          <div class="login-card-header">
+            <span>👤 已登录</span>
+            <span class="text-muted">用户名：${userName}</span>
           </div>
-        ` : `
-          <div class="login-card">
-            <p class="label">设置你的用户名</p>
-            <p>输入一个名字来标识你的学习空间。数据仍保存在本地浏览器中。</p>
-            <div class="login-form">
-              <input type="text" class="profile-name-input" placeholder="输入你的名字…" maxlength="20" />
-              <button class="primary-btn" data-action="login">确认</button>
-            </div>
-          </div>
-        `}
+          <p>你的学习数据保存在此浏览器中，与用户名绑定。</p>
+          <button class="secondary-btn" data-action="logout">退出登录</button>
+        </div>
       </div>
 
       <div class="profile-section">
@@ -5336,35 +5385,15 @@ function renderProfile(store, navigate) {
     </section>
   `;
 
-  // Login handler
-  if (!isLoggedIn) {
-    const loginBtn = el.querySelector('[data-action="login"]');
-    const nameInput = el.querySelector('.profile-name-input');
-    if (loginBtn && nameInput) {
-      loginBtn.addEventListener("click", () => {
-        const name = nameInput.value.trim();
-        if (!name) {
-          nameInput.focus();
-          return;
-        }
-        store.actions.setUserName(name);
-      });
-      nameInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          const name = nameInput.value.trim();
-          if (name) store.actions.setUserName(name);
-        }
-      });
-    }
-  } else {
-    const logoutBtn = el.querySelector('[data-action="logout"]');
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", () => {
-        if (confirm("确定要退出登录吗？数据仍会保留在本地。")) {
-          store.actions.setUserName("");
-        }
-      });
-    }
+  // Login handler — now handled by app.js login gate
+  // Profile just shows stats and logout
+  const logoutBtn = el.querySelector('[data-action="logout"]');
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      if (confirm("确定要退出登录吗？")) {
+        if (window.__logout) window.__logout();
+      }
+    });
   }
 
   el.querySelector('[data-action="export"]').addEventListener("click", () => {
@@ -5679,6 +5708,9 @@ function renderVocabulary(store, navigate) {
 
 
 
+function getKey(state) {
+  return storageKey(state.userName) || `${STORAGE_PREFIX}:<未登录>`;
+}
 
 const COLOR_THEMES = [
   { value: "default", label: "基础色", desc: "暖纸质感", color: "#b75b3d" },
@@ -5702,10 +5734,11 @@ function renderSettings(store, navigate) {
   const settings = state.settings || {};
   const el = document.createElement("div");
   el.className = "stack-layout";
+  const _sk = getKey(state);
 
   const storageSize = (() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(_sk);
       if (!raw) return "空";
       const kb = (new Blob([raw]).size / 1024).toFixed(1);
       return `${kb} KB`;
@@ -5732,7 +5765,7 @@ function renderSettings(store, navigate) {
           </div>
         </div>
         <div class="settings-storage-key-row">
-          <input type="text" class="settings-key-input" value="${STORAGE_KEY}" placeholder="review-system:v2" />
+          <input type="text" class="settings-key-input" value="${_sk}" placeholder="review-system:v2" />
           <button class="primary-btn" data-action="change-key">应用</button>
         </div>
         <div class="settings-info" style="margin-top:12px">
@@ -5861,7 +5894,7 @@ function renderSettings(store, navigate) {
           return;
         }
         if (confirm("导入将覆盖当前所有学习数据（项目、错题、闪卡等），确定继续？")) {
-          localStorage.setItem(STORAGE_KEY, reader.result);
+          localStorage.setItem(_sk, reader.result);
           location.reload();
         }
       } catch {
@@ -5875,12 +5908,12 @@ function renderSettings(store, navigate) {
   el.querySelector('[data-action="change-key"]')?.addEventListener("click", () => {
     const newKey = el.querySelector('.settings-key-input')?.value?.trim();
     if (!newKey) return;
-    if (newKey === STORAGE_KEY) return;
-    if (!confirm(`将数据从 "${STORAGE_KEY}" 迁移到 "${newKey}"，刷新后生效。确定？`)) return;
-    const existing = localStorage.getItem(STORAGE_KEY);
+    if (newKey === _sk) return;
+    if (!confirm(`将数据从 "${_sk}" 迁移到 "${newKey}"，刷新后生效。确定？`)) return;
+    const existing = localStorage.getItem(_sk);
     if (existing) {
       localStorage.setItem(newKey, existing);
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(_sk);
     }
     location.reload();
   });
@@ -6444,65 +6477,131 @@ const routes = {
   obsidian: renderObsidian,
 };
 
-const initialState = createHydratedState(seedState);
-const store = createStore(initialState, {
-  persist(state) {
-    persistState(state);
-  },
-});
 const app = document.getElementById("app");
+let store;
+let navigate;
 
-function renderShell(contentNode) {
-  const shell = createAppShell(store, navigate);
-  shell.querySelector("[data-shell-content]").appendChild(contentNode);
-  app.replaceChildren(shell);
+// ── Login screen ──
+
+function renderLoginScreen(onLogin) {
+  const el = document.createElement("div");
+  el.className = "login-gate";
+  el.innerHTML = `
+    <div class="login-gate-card paper-panel">
+      <div class="login-gate-brand">
+        <p class="label">REVIEW ATELIER</p>
+        <h1>鱼骨头英语复习系统</h1>
+        <p class="login-gate-slogan">把英语啃的只剩鱼骨头。</p>
+      </div>
+      <hr class="sketch-divider" />
+      <div class="login-gate-form">
+        <p class="label">输入你的名字，进入学习空间</p>
+        <p style="font-size:0.82rem;color:var(--muted)">数据保存在你的浏览器中，不会上传。</p>
+        <input type="text" class="login-gate-input" placeholder="你的名字…" maxlength="20" autofocus />
+        <button class="primary-btn login-gate-btn">进入</button>
+      </div>
+    </div>
+  `;
+  const input = el.querySelector(".login-gate-input");
+  const btn = el.querySelector(".login-gate-btn");
+  const submit = () => {
+    const name = input.value.trim();
+    if (!name) { input.focus(); return; }
+    onLogin(name);
+  };
+  btn.addEventListener("click", submit);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+  return el;
 }
 
-function navigate(route, payload = {}) {
-  store.actions.setRoute(route, payload);
+// ── Init ──
 
-  const render = routes[route];
-  if (render) {
-    renderShell(render(store, navigate));
-    return;
+function bootstrap(userName) {
+  const seed = structuredClone(seedState);
+  if (userName) seed.userName = userName;
+  const initialState = createHydratedState(seed);
+  store = createStore(initialState, { persist(s) { persistState(s); } });
+
+  // Apply theme
+  const theme = initialState.settings?.colorTheme || "default";
+  document.documentElement.setAttribute("data-theme", theme);
+
+  function renderShell(contentNode) {
+    const shell = createAppShell(store, navigate);
+    shell.querySelector("[data-shell-content]").appendChild(contentNode);
+    app.replaceChildren(shell);
   }
 
-  // fallback: dashboard
-  const state = store.getState();
-  if (!state.currentProjectId) {
-    store.actions.selectProject(state.projects[0]?.id ?? null);
-  }
-  renderShell(renderDashboard(store, navigate));
-}
-
-try {
-  navigate("dashboard");
-} catch (e) {
-  console.error("Init failed, clearing storage and retrying:", e);
-  try { globalThis.localStorage?.removeItem("review-system:v2"); } catch {}
-  try { globalThis.localStorage?.removeItem("review-system:v1"); } catch {}
-  const fresh = createHydratedState(seedState);
-  const store2 = createStore(fresh, { persist(s) { persistState(s); } });
-  const dash = renderDashboard(store2, (route, payload) => {
-    store2.actions.setRoute(route, payload);
-    const shell2 = createAppShell(store2, () => {});
-    const renderFn = routes[route];
-    if (renderFn) {
-      shell2.querySelector("[data-shell-content]").appendChild(renderFn(store2, () => {}));
+  navigate = (route, payload = {}) => {
+    store.actions.setRoute(route, payload);
+    const render = routes[route];
+    if (render) {
+      renderShell(render(store, navigate));
+      return;
     }
-    app.replaceChildren(shell2);
-  });
-  const shell2 = createAppShell(store2, () => {});
-  shell2.querySelector("[data-shell-content]").appendChild(dash);
-  app.replaceChildren(shell2);
+    const state = store.getState();
+    if (!state.currentProjectId) {
+      store.actions.selectProject(state.projects[0]?.id ?? null);
+    }
+    renderShell(renderDashboard(store, navigate));
+  };
+
+  initQuickNote();
+
+  try {
+    navigate("dashboard");
+  } catch (e) {
+    console.error("Init failed:", e);
+    try { globalThis.localStorage?.removeItem("review-system:v2:" + userName); } catch {}
+    const fresh = createHydratedState(seed);
+    store = createStore(fresh, { persist(s) { persistState(s); } });
+    const shell = createAppShell(store, navigate);
+    shell.querySelector("[data-shell-content]").appendChild(renderDashboard(store, navigate));
+    app.replaceChildren(shell);
+  }
 }
 
-// Initialize quick-note overlay after app is mounted
-initQuickNote();
+// ── Logout handler (called from profile) ──
 
-// Apply saved color theme on init
-const theme = initialState.settings?.colorTheme || "default";
-document.documentElement.setAttribute("data-theme", theme);
+window.__logout = () => {
+  // Remove any stored key with old format too
+  try {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith("review-system:v2:"));
+    keys.forEach(k => localStorage.removeItem(k));
+  } catch {}
+  app.replaceChildren(renderLoginScreen(bootstrap));
+};
+
+// ── Start ──
+
+// Check if there's a saved userName from old format (pre-login-gate migration)
+let savedName = null;
+try {
+  // Try old format first
+  const oldRaw = localStorage.getItem("review-system:v2");
+  if (oldRaw) {
+    const old = JSON.parse(oldRaw);
+    if (old.state?.userName) {
+      savedName = old.state.userName;
+    }
+  }
+} catch {}
+
+// If no old-format user, check any user-specific keys
+if (!savedName) {
+  try {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith("review-system:v2:"));
+    if (keys.length > 0) {
+      savedName = keys[0].replace("review-system:v2:", "");
+    }
+  } catch {}
+}
+
+if (savedName) {
+  bootstrap(savedName);
+} else {
+  app.replaceChildren(renderLoginScreen(bootstrap));
+}
 
 </script>
 </body>
