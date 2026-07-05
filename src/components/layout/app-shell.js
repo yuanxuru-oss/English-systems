@@ -74,7 +74,7 @@ export function createAppShell(store, navigate) {
         </div>
         <div class="checkin-state ${state.checkin.isCheckedIn ? "is-checked" : ""}">
           ${state.checkin.isCheckedIn
-            ? '<span class="fishbone-stamp">🐟</span> 今日已打卡'
+            ? '<span class="fishbone-stamp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" class="stamp-svg"><ellipse cx="16" cy="24" rx="8" ry="6" fill="var(--accent-soft)" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="11" cy="22" r="1.5" fill="currentColor"/><line x1="24" y1="24" x2="42" y2="24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="28" y1="24" x2="33" y2="17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="28" y1="24" x2="33" y2="31" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="32" y1="24" x2="36" y2="18" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="32" y1="24" x2="36" y2="30" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="36" y1="24" x2="39" y2="19" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><line x1="36" y1="24" x2="39" y2="29" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M42 24 L46 20 L44 24 L46 28 Z" fill="var(--accent-soft)" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></svg></span> 今日已打卡'
             : "今日未打卡"}
         </div>
       </header>
