@@ -1,10 +1,12 @@
 import { serializePersistedState } from "../../core/persistence.js";
 import { STORAGE_KEY } from "../../core/persistence.js";
 
-const FONT_SIZES = [
-  { value: "small", label: "小", desc: "紧凑阅读" },
-  { value: "medium", label: "中", desc: "默认大小" },
-  { value: "large", label: "大", desc: "舒适阅读" },
+const COLOR_THEMES = [
+  { value: "default", label: "基础色", desc: "暖纸质感", color: "#b75b3d" },
+  { value: "dark", label: "暗夜", desc: "深色护眼", color: "#2a2520" },
+  { value: "forest", label: "森林绿", desc: "自然清新", color: "#4a7c52" },
+  { value: "ocean", label: "海洋蓝", desc: "冷静专注", color: "#3d6d99" },
+  { value: "sakura", label: "樱花粉", desc: "温柔暖调", color: "#b85a6a" },
 ];
 
 function renderSection(title, content) {
@@ -65,12 +67,13 @@ export function renderSettings(store, navigate) {
         </div>
       `)}
 
-      ${renderSection("🎨 外观设置", `
-        <div class="settings-option-group">
-          ${FONT_SIZES.map((fs) => `
-            <label class="settings-option ${settings.fontSize === fs.value ? "active" : ""}" data-setting="fontSize" data-value="${fs.value}">
-              <span class="settings-option-label">${fs.label}</span>
-              <span class="settings-option-desc">${fs.desc}</span>
+      ${renderSection("🎨 主题色系", `
+        <div class="settings-option-group theme-group">
+          ${COLOR_THEMES.map((t) => `
+            <label class="settings-option theme-option ${(settings.colorTheme || "default") === t.value ? "active" : ""}" data-setting="colorTheme" data-value="${t.value}">
+              <span class="theme-swatch" style="background:${t.color}"></span>
+              <span class="settings-option-label">${t.label}</span>
+              <span class="settings-option-desc">${t.desc}</span>
             </label>
           `).join("")}
         </div>
@@ -126,10 +129,11 @@ export function renderSettings(store, navigate) {
 
   // --- Event handlers ---
 
-  // Font size options — re-render on click for instant visual feedback
-  el.querySelectorAll("[data-setting='fontSize']").forEach((label) => {
+  // Color theme options — re-render on click and apply theme
+  el.querySelectorAll("[data-setting='colorTheme']").forEach((label) => {
     label.addEventListener("click", () => {
-      store.actions.updateSettings({ fontSize: label.dataset.value });
+      store.actions.updateSettings({ colorTheme: label.dataset.value });
+      document.documentElement.setAttribute("data-theme", label.dataset.value);
       navigate("settings");
     });
   });

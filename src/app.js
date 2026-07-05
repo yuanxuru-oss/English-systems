@@ -87,3 +87,7 @@ try {
 
 // Initialize quick-note overlay after app is mounted
 initQuickNote();
+
+// Apply saved color theme on init
+const theme = initialState.settings?.colorTheme || "default";
+document.documentElement.setAttribute("data-theme", theme);

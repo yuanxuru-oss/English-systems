@@ -6,7 +6,7 @@ export const seedState = {
   importPreview: null,
   userName: "",
   settings: {
-    fontSize: "medium",
+    colorTheme: "default",
     autoPlayAudio: false,
     showReference: true,
     dailyReminder: false,
