@@ -43,7 +43,7 @@ export function createAudioPlayer(options = {}) {
       <div class="audio-player-track">
         <div class="audio-progress-bar" data-audio-progress-bar>
           <div class="audio-progress-fill" data-audio-progress-fill style="width:0%"></div>
-          <div class="audio-progress-thumb" data-audio-progress-thumb style="left:0%"></div>
+          <img class="audio-progress-thumb" data-audio-progress-thumb style="left:0%" src="${fishboneDataUri}" alt="" />
         </div>
         <div class="audio-player-info">
           <span class="audio-label">${label}</span>

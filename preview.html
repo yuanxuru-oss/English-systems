@@ -1053,14 +1053,12 @@ mark {
 .audio-progress-thumb {
   position: absolute;
   top: 50%;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: 2px solid #fffaf3;
+  width: 22px;
+  height: 22px;
   transform: translate(-50%, -50%);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   pointer-events: none;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.18));
   transition: left 200ms linear;
 }
 
@@ -4404,7 +4402,7 @@ function createAudioPlayer(options = {}) {
       <div class="audio-player-track">
         <div class="audio-progress-bar" data-audio-progress-bar>
           <div class="audio-progress-fill" data-audio-progress-fill style="width:0%"></div>
-          <div class="audio-progress-thumb" data-audio-progress-thumb style="left:0%"></div>
+          <img class="audio-progress-thumb" data-audio-progress-thumb style="left:0%" src="${fishboneDataUri}" alt="" />
         </div>
         <div class="audio-player-info">
           <span class="audio-label">${label}</span>
