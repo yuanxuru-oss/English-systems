@@ -14,8 +14,8 @@ export function renderListeningPractice(store, navigate) {
     return el;
   }
 
-  const dictationModule = listeningModules.find((m) => m.mode === "dictation") || listeningModules[0];
-  const compModule = listeningModules.find((m) => m.mode === "comprehension");
+  const dictationModule = listeningModules.findLast((m) => m.mode === "dictation" && m.audioData) || listeningModules.findLast((m) => m.mode === "dictation") || listeningModules[0];
+  const compModule = listeningModules.findLast((m) => m.mode === "comprehension" && m.audioData) || listeningModules.findLast((m) => m.mode === "comprehension");
   const activeMode = state.routePayload?.mode || (compModule ? "comprehension" : "dictation");
   const module = activeMode === "comprehension" && compModule ? compModule : dictationModule;
 
