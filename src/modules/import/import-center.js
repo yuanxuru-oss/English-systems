@@ -92,12 +92,12 @@ export function renderImportCenter(store) {
       </div>
       <div class="import-audio-row" data-import-audio>
         <label class="import-audio-label">
-          <span>🎵 听力音频（可选）</span>
-          <input type="file" accept="audio/mp3,audio/wav,audio/mpeg,audio/wav" data-audio-file hidden />
-          <span class="import-audio-btn">选择音频文件</span>
+          <span>🎵 听力音频<span style="color:var(--accent);font-weight:600">（精听/听力原题必选）</span></span>
+          <input type="file" accept="audio/mp3,audio/wav,audio/mpeg,audio/wav,.mp3,.wav" data-audio-file hidden />
+          <span class="import-audio-btn">📁 选择音频文件</span>
         </label>
         <span class="import-audio-name" data-audio-name>未选择文件</span>
-        <span class="import-audio-hint">仅精听填空 / 听力原题模块需要。支持 MP3、WAV。</span>
+        <span class="import-audio-hint">点击上方按钮选择 MP3 或 WAV 文件，选择后下方会显示文件名 ✓。支持任意长度音频。</span>
       </div>
       <div class="hero-actions">
         <button class="primary-btn" data-action="preview">生成预览</button>
@@ -114,19 +114,27 @@ export function renderImportCenter(store) {
 
   // Audio file upload
   const audioBtn = el.querySelector(".import-audio-btn");
+  const audioRow = el.querySelector("[data-import-audio]");
   audioBtn.addEventListener("click", () => audioFileInput.click());
   audioFileInput.addEventListener("change", () => {
     const file = audioFileInput.files[0];
     if (!file) {
       audioDataUrl = null;
       audioNameEl.textContent = "未选择文件";
+      audioRow.classList.remove("has-audio");
       return;
     }
-    audioNameEl.textContent = file.name;
+    audioNameEl.textContent = `⏳ ${file.name} (读取中…)`;
     const reader = new FileReader();
     reader.onload = () => {
       audioDataUrl = reader.result;
-      audioNameEl.textContent = `${file.name} ✓`;
+      const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+      audioNameEl.textContent = `✅ ${file.name} (${sizeMB} MB)`;
+      audioRow.classList.add("has-audio");
+    };
+    reader.onerror = () => {
+      audioNameEl.textContent = "❌ 文件读取失败，请重试";
+      audioRow.classList.remove("has-audio");
     };
     reader.readAsDataURL(file);
   });
@@ -201,21 +209,37 @@ export function renderImportCenter(store) {
   });
 
   el.querySelector('[data-action="apply"]').addEventListener("click", () => {
-    // Attach audio data if present and module is listening type
     const p = state.importPreview;
-    if (p && (p.type === "listening") && audioDataUrl) {
-      p.audioData = audioDataUrl;
+    if (!p) {
+      previewPanel.innerHTML = `<p class="preview-empty" style="color:var(--rose)">请先点击"生成预览"。</p>`;
+      return;
     }
+
+    // Attach audio data if present and module is listening type
+    if (p.type === "listening") {
+      if (audioDataUrl) {
+        p.audioData = audioDataUrl;
+      }
+      // Warn if no audio attached to listening module (but allow)
+      if (!audioDataUrl && !p.audioData) {
+        const confirmed = confirm("当前听力模块未附加音频文件，加入后将无法播放声音。\n\n确定要继续吗？\n（取消后可以先点击上方 📁 选择音频文件）");
+        if (!confirmed) return;
+      }
+    }
+
     store.actions.applyImportPreview();
+    const hadAudio = !!audioDataUrl;
     audioDataUrl = null;
     audioFileInput.value = "";
     audioNameEl.textContent = "未选择文件";
-    if (p?.type === "vocabulary") {
+    audioRow.classList.remove("has-audio");
+
+    if (p.type === "vocabulary") {
       previewPanel.innerHTML = `<p class="preview-empty">单词已加入闪卡词库 ✓。</p>`;
-    } else if (p?.mode === "comprehension") {
-      previewPanel.innerHTML = `<p class="preview-empty">${p.type === "listening" ? "听力原题" : "阅读原题"}已加入当前试卷 ✓。</p>`;
+    } else if (p.mode === "comprehension") {
+      previewPanel.innerHTML = `<p class="preview-empty">${p.type === "listening" ? "听力原题" : "阅读原题"}已加入当前试卷${hadAudio ? ' (含音频)' : ''} ✓。</p>`;
     } else {
-      previewPanel.innerHTML = `<p class="preview-empty">已加入当前项目 ✓。</p>`;
+      previewPanel.innerHTML = `<p class="preview-empty">${p.type === "listening" ? `精听填空已加入当前项目${hadAudio ? ' (含音频)' : ' (无音频)'} ✓。` : '已加入当前项目 ✓。'}</p>`;
     }
   });
 
