@@ -1883,6 +1883,7 @@ trans-mark.trans-match,
 }
 
 
+
 /* --- Fish stepper widget --- */
 
 .fish-stepper-widget {
@@ -1909,25 +1910,79 @@ trans-mark.trans-match,
   gap: 0;
   overflow-x: auto;
   padding-bottom: 4px;
+  padding-top: 8px;
 }
+
+/* --- Logo --- */
 
 .fish-stepper-logo {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease, transform 0.15s ease;
+  position: relative;
+}
+
+.fish-stepper-logo:hover {
+  transform: scale(1.08);
 }
 
 .fish-stepper-logo img {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   filter: brightness(0) invert(1);
+}
+
+/* Neon glow when all done */
+.fish-stepper-logo.is-all-done {
+  background: var(--accent);
+  box-shadow:
+    0 0 8px var(--accent),
+    0 0 20px var(--accent),
+    0 0 40px var(--accent-soft),
+    0 0 60px var(--accent-soft);
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 8px var(--accent),
+      0 0 20px var(--accent),
+      0 0 40px var(--accent-soft),
+      0 0 60px var(--accent-soft);
+  }
+  50% {
+    box-shadow:
+      0 0 12px var(--accent),
+      0 0 30px var(--accent),
+      0 0 55px var(--accent-soft),
+      0 0 80px var(--accent-soft);
+  }
+}
+
+/* Wobble animation on click */
+.fish-stepper-logo.wobble {
+  animation: wobble 0.5s ease-out;
+}
+
+@keyframes wobble {
+  0%   { transform: rotate(0deg); }
+  15%  { transform: rotate(-14deg); }
+  30%  { transform: rotate(12deg); }
+  45%  { transform: rotate(-10deg); }
+  60%  { transform: rotate(7deg); }
+  75%  { transform: rotate(-4deg); }
+  90%  { transform: rotate(2deg); }
+  100% { transform: rotate(0deg); }
 }
 
 .fish-stepper-connector {
@@ -1938,6 +1993,8 @@ trans-mark.trans-match,
   border-radius: 1px;
   margin: 0 4px;
 }
+
+/* --- Step items --- */
 
 .fish-step-item {
   flex-shrink: 0;

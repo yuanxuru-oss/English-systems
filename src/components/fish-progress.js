@@ -21,8 +21,11 @@ export function renderFishProgress(store, navigate) {
   const done = steps.length;
   const total = FISH_STEPS.length;
 
+  const allDone = done === total;
+  const logoCls = "fish-stepper-logo" + (allDone ? " is-all-done" : "");
+
   const logoHTML = `
-    <div class="fish-stepper-logo" title="鱼骨头英语复习系统">
+    <div class="${logoCls}" title="鱼骨头英语复习系统" data-logo>
       <img src="${window.fishboneDataUri || ''}" alt="logo" />
     </div>
   `;
@@ -46,7 +49,7 @@ export function renderFishProgress(store, navigate) {
     <section class="fish-stepper-widget paper-panel">
       <div class="fish-stepper-header">
         <p class="label">复习流程</p>
-        <span class="fish-stepper-count">${done}/${total}</span>
+        <span class="fish-stepper-count">${allDone ? "🦴 全部完成！" : `${done}/${total}`}</span>
       </div>
       <div class="fish-stepper-track">
         ${logoHTML}
@@ -64,4 +67,14 @@ export function bindFishStepper(el, navigate) {
       if (route) navigate(route);
     });
   });
+
+  // Logo wobble on click
+  const logo = el.querySelector("[data-logo]");
+  if (logo) {
+    logo.addEventListener("click", () => {
+      logo.classList.remove("wobble");
+      void logo.offsetWidth; // force reflow
+      logo.classList.add("wobble");
+    });
+  }
 }
