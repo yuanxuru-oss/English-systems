@@ -2074,6 +2074,170 @@ trans-mark.trans-match,
   color: var(--muted);
 }
 
+/* --- Settings Page --- */
+
+.settings-layout {
+  max-width: 720px;
+}
+
+.settings-section {
+  margin-bottom: 28px;
+}
+
+.settings-section .label {
+  margin-bottom: 14px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.settings-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-info-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.settings-info-value {
+  font-size: 0.9rem;
+}
+
+.settings-key {
+  font-size: 0.78rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(104, 81, 47, 0.06);
+  font-family: monospace;
+}
+
+.settings-option-group {
+  display: flex;
+  gap: 10px;
+}
+
+.settings-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 12px;
+  border-radius: 18px 22px 16px 20px;
+  border: 1.5px dashed rgba(183, 91, 61, 0.2);
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.settings-option:hover {
+  border-color: var(--accent);
+}
+
+.settings-option.active {
+  border-style: solid;
+  border-color: var(--accent);
+  background: rgba(86, 121, 91, 0.06);
+}
+
+.settings-option-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.settings-option-desc {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.settings-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 18px 22px 16px 20px;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(104, 81, 47, 0.1);
+  cursor: pointer;
+}
+
+.settings-toggle-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.settings-toggle-desc {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.settings-switch {
+  width: 44px;
+  height: 24px;
+  appearance: none;
+  border-radius: 12px;
+  background: rgba(104, 81, 47, 0.15);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.settings-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: transform 0.2s;
+}
+
+.settings-switch:checked {
+  background: var(--accent);
+}
+
+.settings-switch:checked::after {
+  transform: translateX(20px);
+}
+
+.settings-time-input {
+  padding: 4px 10px;
+  border-radius: 10px 14px 8px 12px;
+  border: 1.5px dashed rgba(183, 91, 61, 0.25);
+  background: var(--paper);
+  font-family: var(--font-system);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.settings-time-input:focus {
+  border-color: var(--accent);
+  border-style: solid;
+}
+
+.settings-file-input {
+  display: none;
+}
+
 @media (max-width: 1100px) {
   .app-shell,
   .hero-panel,
@@ -2530,6 +2694,11 @@ function createStore(initialState, options = {}) {
     commit();
   };
 
+  actions.updateSettings = function (patch) {
+    state.settings = { ...(state.settings || {}), ...patch };
+    commit();
+  };
+
   return {
     getState() {
       return state;
@@ -2557,6 +2726,7 @@ const PERSISTED_FIELDS = [
   "flashcards",
   "studyLog",
   "userName",
+  "settings",
   "route",
 ];
 
@@ -2852,6 +3022,7 @@ function createAppShell(store, navigate) {
         ${navItem("flashcards", "闪卡词库", "flashcards")}
         ${navItem("checkin", "打卡日历", "checkin")}
         ${navItem("profile", "个人中心", "user")}
+        ${navItem("settings", "设置", "gear")}
       </nav>
       <div class="project-chip">
         ${icon("pin")}
@@ -4968,6 +5139,198 @@ function renderVocabulary(store, navigate) {
   return el;
 }
 
+
+
+
+const FONT_SIZES = [
+  { value: "small", label: "小", desc: "紧凑阅读" },
+  { value: "medium", label: "中", desc: "默认大小" },
+  { value: "large", label: "大", desc: "舒适阅读" },
+];
+
+function renderSection(title, content) {
+  return `
+    <div class="settings-section">
+      <p class="label">${title}</p>
+      ${content}
+    </div>
+  `;
+}
+
+function renderSettings(store, navigate) {
+  const state = store.getState();
+  const settings = state.settings || {};
+  const el = document.createElement("div");
+  el.className = "stack-layout";
+
+  const storageSize = (() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return "空";
+      const kb = (new Blob([raw]).size / 1024).toFixed(1);
+      return `${kb} KB`;
+    } catch {
+      return "未知";
+    }
+  })();
+
+  el.innerHTML = `
+    <section class="paper-panel settings-layout">
+      <div class="reading-header">
+        <div>
+          <p class="label">Settings</p>
+          <h3>系统设置</h3>
+          <p>调整你的学习环境与偏好。</p>
+        </div>
+      </div>
+
+      ${renderSection("💾 存储设置", `
+        <div class="settings-row">
+          <div class="settings-info">
+            <span class="settings-info-label">存储位置</span>
+            <span class="settings-info-value">浏览器 localStorage</span>
+          </div>
+          <div class="settings-info">
+            <span class="settings-info-label">存储键</span>
+            <code class="settings-key">${STORAGE_KEY}</code>
+          </div>
+          <div class="settings-info">
+            <span class="settings-info-label">已用空间</span>
+            <span class="settings-info-value">${storageSize}</span>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="secondary-btn" data-action="export">导出数据 (JSON)</button>
+          <button class="secondary-btn" data-action="import-trigger">导入数据 (JSON)</button>
+          <input type="file" accept=".json" class="settings-file-input" style="display:none" />
+        </div>
+      `)}
+
+      ${renderSection("🎨 外观设置", `
+        <div class="settings-option-group">
+          ${FONT_SIZES.map((fs) => `
+            <label class="settings-option ${settings.fontSize === fs.value ? "active" : ""}" data-setting="fontSize" data-value="${fs.value}">
+              <span class="settings-option-label">${fs.label}</span>
+              <span class="settings-option-desc">${fs.desc}</span>
+            </label>
+          `).join("")}
+        </div>
+      `)}
+
+      ${renderSection("📚 学习设置", `
+        <div class="settings-toggles">
+          <label class="settings-toggle">
+            <div>
+              <span class="settings-toggle-label">自动播放音频</span>
+              <span class="settings-toggle-desc">进入听力练习时自动开始播放</span>
+            </div>
+            <input type="checkbox" data-setting="autoPlayAudio" ${settings.autoPlayAudio ? "checked" : ""} class="settings-switch" />
+          </label>
+          <label class="settings-toggle">
+            <div>
+              <span class="settings-toggle-label">显示参考译文</span>
+              <span class="settings-toggle-desc">翻译练习提交后默认展开参考译文</span>
+            </div>
+            <input type="checkbox" data-setting="showReference" ${settings.showReference !== false ? "checked" : ""} class="settings-switch" />
+          </label>
+        </div>
+      `)}
+
+      ${renderSection("🔔 提醒设置", `
+        <div class="settings-toggles">
+          <label class="settings-toggle">
+            <div>
+              <span class="settings-toggle-label">每日学习提醒</span>
+              <span class="settings-toggle-desc">每天在设定时间通过浏览器通知提醒学习</span>
+            </div>
+            <input type="checkbox" data-setting="dailyReminder" ${settings.dailyReminder ? "checked" : ""} class="settings-switch" />
+          </label>
+          <div class="settings-row" style="margin-top:8px">
+            <span class="settings-info-label">提醒时间</span>
+            <input type="time" value="${settings.reminderTime || "20:00"}" data-setting="reminderTime" class="settings-time-input" />
+          </div>
+        </div>
+      `)}
+
+      ${renderSection("ℹ️ 关于", `
+        <div class="settings-info">
+          <span class="settings-info-label">版本</span>
+          <span class="settings-info-value">v1.0.0</span>
+        </div>
+        <div class="settings-info">
+          <span class="settings-info-label">项目</span>
+          <span class="settings-info-value">鱼头英语复习系统</span>
+        </div>
+      `)}
+    </section>
+  `;
+
+  // --- Event handlers ---
+
+  // Font size options
+  el.querySelectorAll("[data-setting='fontSize']").forEach((label) => {
+    label.addEventListener("click", () => {
+      store.actions.updateSettings({ fontSize: label.dataset.value });
+    });
+  });
+
+  // Toggle switches
+  el.querySelectorAll(".settings-switch").forEach((checkbox) => {
+    checkbox.addEventListener("change", () => {
+      store.actions.updateSettings({ [checkbox.dataset.setting]: checkbox.checked });
+    });
+  });
+
+  // Time input
+  const timeInput = el.querySelector('[data-setting="reminderTime"]');
+  if (timeInput) {
+    timeInput.addEventListener("change", () => {
+      store.actions.updateSettings({ reminderTime: timeInput.value });
+    });
+  }
+
+  // Export
+  el.querySelector('[data-action="export"]')?.addEventListener("click", () => {
+    const json = serializePersistedState(state);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `fishbone-review-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Import
+  const fileInput = el.querySelector(".settings-file-input");
+  el.querySelector('[data-action="import-trigger"]')?.addEventListener("click", () => {
+    fileInput.click();
+  });
+  fileInput?.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data.version || !data.state) {
+          alert("无效的备份文件格式。");
+          return;
+        }
+        if (confirm("导入将覆盖当前所有学习数据（项目、错题、闪卡等），确定继续？")) {
+          localStorage.setItem(STORAGE_KEY, reader.result);
+          location.reload();
+        }
+      } catch {
+        alert("文件解析失败，请确认是有效的 JSON 备份文件。");
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  return el;
+}
+
 const seedState = {
   route: "dashboard",
   routePayload: {},
@@ -4975,6 +5338,13 @@ const seedState = {
   currentFolderId: "folder-cet-1",
   importPreview: null,
   userName: "",
+  settings: {
+    fontSize: "medium",
+    autoPlayAudio: false,
+    showReference: true,
+    dailyReminder: false,
+    reminderTime: "20:00",
+  },
   projectKeywords: ["satisfaction", "empathy", "adversity", "regret", "liberation"],
   cetVocabulary: [
     "satisfaction", "empathy", "adversity", "regret", "liberation",
@@ -5183,6 +5553,7 @@ const routes = {
   profile: renderProfile,
   translation: renderTranslation,
   vocabulary: renderVocabulary,
+  settings: renderSettings,
 };
 
 const initialState = createHydratedState(seedState);

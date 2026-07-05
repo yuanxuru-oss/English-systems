@@ -14,6 +14,7 @@ import { renderIntensiveLayer } from "./modules/listening/intensive-layer.js";
 import { renderProfile } from "./modules/profile/profile.js";
 import { renderTranslation } from "./modules/translation/translation.js";
 import { renderVocabulary } from "./modules/vocabulary/vocabulary.js";
+import { renderSettings } from "./modules/settings/settings.js";
 import { seedState } from "./data/seed.js";
 
 const routes = {
@@ -28,6 +29,7 @@ const routes = {
   profile: renderProfile,
   translation: renderTranslation,
   vocabulary: renderVocabulary,
+  settings: renderSettings,
 };
 
 const initialState = createHydratedState(seedState);

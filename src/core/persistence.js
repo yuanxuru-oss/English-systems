@@ -11,6 +11,7 @@ const PERSISTED_FIELDS = [
   "flashcards",
   "studyLog",
   "userName",
+  "settings",
   "route",
 ];
 

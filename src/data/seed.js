@@ -5,6 +5,13 @@ export const seedState = {
   currentFolderId: "folder-cet-1",
   importPreview: null,
   userName: "",
+  settings: {
+    fontSize: "medium",
+    autoPlayAudio: false,
+    showReference: true,
+    dailyReminder: false,
+    reminderTime: "20:00",
+  },
   projectKeywords: ["satisfaction", "empathy", "adversity", "regret", "liberation"],
   cetVocabulary: [
     "satisfaction", "empathy", "adversity", "regret", "liberation",

@@ -242,6 +242,11 @@ export function createStore(initialState, options = {}) {
     commit();
   };
 
+  actions.updateSettings = function (patch) {
+    state.settings = { ...(state.settings || {}), ...patch };
+    commit();
+  };
+
   return {
     getState() {
       return state;

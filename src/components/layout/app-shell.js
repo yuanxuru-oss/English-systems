@@ -56,6 +56,7 @@ export function createAppShell(store, navigate) {
         ${navItem("flashcards", "闪卡词库", "flashcards")}
         ${navItem("checkin", "打卡日历", "checkin")}
         ${navItem("profile", "个人中心", "user")}
+        ${navItem("settings", "设置", "gear")}
       </nav>
       <div class="project-chip">
         ${icon("pin")}
