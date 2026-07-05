@@ -1,5 +1,5 @@
 import { icon } from "../../components/icons.js";
-import { renderFishProgress } from "../../components/fish-progress.js";
+import { renderFishProgress, bindFishStepper } from "../../components/fish-progress.js";
 
 function moduleIcon(type) {
   return `<span class="module-spot-icon">${icon(type)}</span>`;
@@ -53,7 +53,7 @@ export function renderDashboard(store, navigate) {
         </div>
       </div>
     </section>
-    ${renderFishProgress(fishProgress)}
+    ${renderFishProgress(store, navigate)}
     <section class="panel-row">
       <article class="paper-panel stat-panel">
         <p class="label">最近项目</p>
@@ -95,6 +95,8 @@ export function renderDashboard(store, navigate) {
 
   el.querySelector('[data-action="open-project"]').addEventListener("click", () => navigate("project"));
   el.querySelector('[data-action="open-import"]').addEventListener("click", () => navigate("import"));
+
+  bindFishStepper(el, navigate);
 
   return el;
 }

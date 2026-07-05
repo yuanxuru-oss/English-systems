@@ -1882,38 +1882,143 @@ trans-mark.trans-match,
   }
 }
 
-/* --- Fish progress widget --- */
 
-.fish-progress-widget {
+/* --- Fish stepper widget --- */
+
+.fish-stepper-widget {
+  padding: 20px 24px;
+}
+
+.fish-stepper-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.fish-stepper-count {
+  font-family: "Times New Roman", serif;
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.fish-stepper-track {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 24px 28px;
-  border-radius: 24px;
-  border: 1px solid var(--border-subtle);
-  background: var(--paper);
-  box-shadow: var(--shadow);
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
-.fish-progress-stage {
+.fish-stepper-logo {
   flex-shrink: 0;
-  width: 200px;
-  height: 84px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.fish-svg {
-  width: 100%;
-  height: 100%;
-  display: block;
+.fish-stepper-logo img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 
-.fish-svg .fish-skeleton {
-  transition: opacity 0.8s ease;
+.fish-stepper-connector {
+  flex-shrink: 0;
+  width: 16px;
+  height: 2px;
+  background: var(--line);
+  border-radius: 1px;
+  margin: 0 4px;
 }
 
-.fish-progress-label {
-  font-size: 0.95rem;
-  color: var(--ink);
-  font-family: "Times New Roman", serif;
-  letter-spacing: 0.03em;
+.fish-step-item {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 1.5px solid var(--line);
+  background: var(--paper);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 64px;
+  position: relative;
+}
+
+.fish-step-item::after {
+  content: "";
+  position: absolute;
+  right: -18px;
+  top: 50%;
+  width: 14px;
+  height: 2px;
+  background: var(--line);
+  border-radius: 1px;
+  transform: translateY(-50%);
+}
+
+.fish-step-item:last-child::after {
+  display: none;
+}
+
+.fish-step-item.is-done {
+  border-color: var(--accent);
+  background: rgba(183, 91, 61, 0.06);
+}
+
+.fish-step-item.is-done::after {
+  background: var(--accent);
+}
+
+.fish-step-item.is-next {
+  border-color: var(--accent);
+  border-style: solid;
+  box-shadow: 0 0 0 2px rgba(183, 91, 61, 0.12);
+}
+
+.fish-step-item:hover {
+  border-color: var(--accent);
+  background: rgba(183, 91, 61, 0.04);
+}
+
+.fish-step-icon {
+  font-size: 1.1rem;
+}
+
+.fish-step-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.fish-step-item.is-done .fish-step-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.fish-step-check {
+  font-size: 0.6rem;
+  color: white;
+  background: var(--accent);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: -6px;
+  right: -6px;
 }
