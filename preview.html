@@ -2462,6 +2462,7 @@ trans-mark.trans-match,
 .fish-stepper-track {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0;
   overflow-x: auto;
   padding-bottom: 4px;
@@ -2472,8 +2473,8 @@ trans-mark.trans-match,
 
 .fish-stepper-logo {
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: var(--accent);
   display: flex;
@@ -2490,10 +2491,10 @@ trans-mark.trans-match,
 }
 
 .fish-stepper-logo img {
-  width: 26px;
-  height: 26px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
-  filter: brightness(0) invert(1);
+  filter: brightness(10);
 }
 
 /* Neon glow when all done */
@@ -2524,8 +2525,8 @@ trans-mark.trans-match,
   }
 }
 
-/* Wobble animation on click */
-.fish-stepper-logo.wobble {
+/* Wobble animation on click �� img only, circle stays still */
+.fish-stepper-logo img.wobble {
   animation: wobble 0.5s ease-out;
 }
 
@@ -2542,11 +2543,11 @@ trans-mark.trans-match,
 
 .fish-stepper-connector {
   flex-shrink: 0;
-  width: 16px;
+  width: 20px;
   height: 2px;
   background: var(--line);
   border-radius: 1px;
-  margin: 0 4px;
+  margin: 0 8px;
 }
 
 /* --- Step items --- */
@@ -2557,22 +2558,23 @@ trans-mark.trans-match,
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 8px 10px;
+  padding: 10px 14px;
   border-radius: 14px;
   border: 1.5px solid var(--line);
   background: var(--paper);
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 64px;
+  min-width: 72px;
   position: relative;
+  margin: 0 4px;
 }
 
 .fish-step-item::after {
   content: "";
   position: absolute;
-  right: -18px;
+  right: -22px;
   top: 50%;
-  width: 14px;
+  width: 18px;
   height: 2px;
   background: var(--line);
   border-radius: 1px;
@@ -2634,6 +2636,10 @@ trans-mark.trans-match,
   top: -6px;
   right: -6px;
 }
+
+
+
+
 
 </style>
 </head>
@@ -3659,14 +3665,17 @@ function bindFishStepper(el, navigate) {
     });
   });
 
-  // Logo wobble on click
+  // Logo wobble on click — only the image, not the circle
   const logo = el.querySelector("[data-logo]");
   if (logo) {
-    logo.addEventListener("click", () => {
-      logo.classList.remove("wobble");
-      void logo.offsetWidth; // force reflow
-      logo.classList.add("wobble");
-    });
+    const img = logo.querySelector("img");
+    if (img) {
+      logo.addEventListener("click", () => {
+        img.classList.remove("wobble");
+        void img.offsetWidth;
+        img.classList.add("wobble");
+      });
+    }
   }
 }
 

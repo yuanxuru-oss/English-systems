@@ -68,13 +68,16 @@ export function bindFishStepper(el, navigate) {
     });
   });
 
-  // Logo wobble on click
+  // Logo wobble on click — only the image, not the circle
   const logo = el.querySelector("[data-logo]");
   if (logo) {
-    logo.addEventListener("click", () => {
-      logo.classList.remove("wobble");
-      void logo.offsetWidth; // force reflow
-      logo.classList.add("wobble");
-    });
+    const img = logo.querySelector("img");
+    if (img) {
+      logo.addEventListener("click", () => {
+        img.classList.remove("wobble");
+        void img.offsetWidth;
+        img.classList.add("wobble");
+      });
+    }
   }
 }
