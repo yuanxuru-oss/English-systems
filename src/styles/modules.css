@@ -1925,7 +1925,7 @@ trans-mark.trans-match,
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  box-shadow: none;
   cursor: pointer;
   transition: box-shadow 0.3s ease, transform 0.15s ease;
   position: relative;
@@ -1939,18 +1939,11 @@ trans-mark.trans-match,
   width: 44px;
   height: 44px;
   object-fit: contain;
-  filter: brightness(10);
+  filter: brightness(0) invert(1);
 }
 
 /* Neon glow when all done */
-.fish-stepper-logo.is-all-done {
-  background: var(--accent);
-  box-shadow:
-    0 0 8px var(--accent),
-    0 0 20px var(--accent),
-    0 0 40px var(--accent-soft),
-    0 0 60px var(--accent-soft);
-  animation: neon-pulse 2s ease-in-out infinite;
+.fish-stepper-logo.is-all-done { background: var(--accent); animation: neon-pulse 2s ease-in-out infinite;
 }
 
 @keyframes neon-pulse {
@@ -2081,6 +2074,8 @@ trans-mark.trans-match,
   top: -6px;
   right: -6px;
 }
+
+
 
 
 
