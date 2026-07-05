@@ -348,10 +348,10 @@ mark {
   margin-right: 1px;
   animation: stamp-pop 0.4s ease-out;
   filter:
-    drop-shadow(1px 0 0 rgba(0,0,0,0.22))
-    drop-shadow(-1px 0 0 rgba(0,0,0,0.22))
-    drop-shadow(0 1px 0 rgba(0,0,0,0.22))
-    drop-shadow(0 -1px 0 rgba(0,0,0,0.22))
+    drop-shadow(1px 0 0 rgba(255,255,255,0.92))
+    drop-shadow(-1px 0 0 rgba(255,255,255,0.92))
+    drop-shadow(0 1px 0 rgba(255,255,255,0.92))
+    drop-shadow(0 -1px 0 rgba(255,255,255,0.92))
     drop-shadow(0 2px 3px rgba(0,0,0,0.1));
 }
 
@@ -1064,10 +1064,10 @@ mark {
   pointer-events: none;
   object-fit: contain;
   filter:
-    drop-shadow(1px 0 0 rgba(0,0,0,0.22))
-    drop-shadow(-1px 0 0 rgba(0,0,0,0.22))
-    drop-shadow(0 1px 0 rgba(0,0,0,0.22))
-    drop-shadow(0 -1px 0 rgba(0,0,0,0.22))
+    drop-shadow(1px 0 0 rgba(255,255,255,0.92))
+    drop-shadow(-1px 0 0 rgba(255,255,255,0.92))
+    drop-shadow(0 1px 0 rgba(255,255,255,0.92))
+    drop-shadow(0 -1px 0 rgba(255,255,255,0.92))
     drop-shadow(0 1px 3px rgba(0,0,0,0.15));
   transition: left 200ms linear;
 }
@@ -4157,8 +4157,8 @@ function renderReadingPractice(store, navigate) {
           <h3>${module.title}</h3>
         </div>
         <div class="import-tabs">
-          <button class="import-tab ${activeMode === "cloze" ? "active" : ""}" data-tab="cloze">📝 填空练习</button>
           ${compModule ? `<button class="import-tab ${activeMode === "comprehension" ? "active" : ""}" data-tab="comprehension">📖 阅读理解</button>` : ""}
+          <button class="import-tab ${activeMode === "cloze" ? "active" : ""}" data-tab="cloze">📝 填空练习</button>
           <button class="secondary-btn" data-action="to-mistakes">去错题笔记</button>
         </div>
       </div>

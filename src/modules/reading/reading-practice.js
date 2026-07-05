@@ -62,8 +62,8 @@ export function renderReadingPractice(store, navigate) {
           <h3>${module.title}</h3>
         </div>
         <div class="import-tabs">
-          <button class="import-tab ${activeMode === "cloze" ? "active" : ""}" data-tab="cloze">📝 填空练习</button>
           ${compModule ? `<button class="import-tab ${activeMode === "comprehension" ? "active" : ""}" data-tab="comprehension">📖 阅读理解</button>` : ""}
+          <button class="import-tab ${activeMode === "cloze" ? "active" : ""}" data-tab="cloze">📝 填空练习</button>
           <button class="secondary-btn" data-action="to-mistakes">去错题笔记</button>
         </div>
       </div>
