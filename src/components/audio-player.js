@@ -19,12 +19,13 @@ export function createAudioPlayer(options = {}) {
   let intervalId = null;
   let _onEnded = onEnded;
 
-  // Hidden native audio element
+  // Hidden native audio element — must be in DOM for some browsers
   const nativeAudio = hasAudio ? document.createElement("audio") : null;
   if (nativeAudio) {
     nativeAudio.src = audioSrc;
     nativeAudio.volume = volume;
     nativeAudio.preload = "auto";
+    nativeAudio.style.display = "none";
   }
 
   const container = document.createElement("div");
@@ -276,6 +277,7 @@ export function createAudioPlayer(options = {}) {
 
   updateUI();
   updateVolumeUI();
+  if (nativeAudio) container.appendChild(nativeAudio);
   return container;
 }
 

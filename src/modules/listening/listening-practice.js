@@ -36,6 +36,7 @@ export function renderListeningPractice(store, navigate) {
     // Dictation / 精听训练
     const allAnswered = module.items.every((item) => item.isCorrect !== null);
     bodyHTML = `
+      <div class="audio-player-container" data-audio-player-anchor></div>
       <p class="listening-hint">🎧 精听训练模式：先播放音频，在空格处填入你听到的单词。提交后进入精听层，查看重点词汇高亮和错题挖空复习。</p>
       <article class="listening-transcript">
         <p>${module.transcript}</p>
@@ -82,18 +83,16 @@ export function renderListeningPractice(store, navigate) {
     </section>
   `;
 
-  // Audio player for comprehension mode
-  if (isCETComprehension) {
-    const audioAnchor = el.querySelector("[data-audio-player-anchor]");
-    if (audioAnchor) {
-      const audioPlayer = createAudioPlayer({
-        duration: 150,
-        label: "🔊 播放听力音频 · Conversation 1 & 2",
-        audioSrc: module.audioData || null,
-        onEnded: () => {},
-      });
-      audioAnchor.appendChild(audioPlayer);
-    }
+  // Audio player — both modes
+  const audioAnchor = el.querySelector("[data-audio-player-anchor]");
+  if (audioAnchor) {
+    const audioPlayer = createAudioPlayer({
+      duration: module.mode === "comprehension" ? 150 : 180,
+      label: module.mode === "comprehension" ? "🔊 播放听力音频 · Conversation 1 & 2" : "🎧 精听训练音频",
+      audioSrc: module.audioData || null,
+      onEnded: () => {},
+    });
+    audioAnchor.appendChild(audioPlayer);
   }
 
   // Tab switching
