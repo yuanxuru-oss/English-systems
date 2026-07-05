@@ -3211,7 +3211,7 @@ function createAppShell(store, navigate) {
         </div>
         <div class="checkin-state ${state.checkin.isCheckedIn ? "is-checked" : ""}">
           ${state.checkin.isCheckedIn
-            ? '<span class="fishbone-stamp"><img src="data:image/png;base64,' + fishboneDataUri + '" alt="打卡印章" /></span> 今日已打卡'
+            ? '<span class="fishbone-stamp"><img src="' + fishboneDataUri + '" alt="打卡印章" /></span> 今日已打卡'
             : "今日未打卡"}
         </div>
       </header>
