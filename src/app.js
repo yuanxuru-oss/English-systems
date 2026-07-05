@@ -15,7 +15,16 @@ import { renderProfile } from "./modules/profile/profile.js";
 import { renderTranslation } from "./modules/translation/translation.js";
 import { renderVocabulary } from "./modules/vocabulary/vocabulary.js";
 import { renderSettings } from "./modules/settings/settings.js";
+import { renderObsidianPanel, bindObsidianPanel } from "./modules/obsidian/obsidian-bridge.js";
 import { seedState } from "./data/seed.js";
+
+function renderObsidian(store, navigate) {
+  const el = document.createElement("div");
+  el.className = "page-grid";
+  el.innerHTML = renderObsidianPanel(store, navigate);
+  bindObsidianPanel(el, store, navigate);
+  return el;
+}
 
 const routes = {
   project: renderProject,
@@ -30,6 +39,7 @@ const routes = {
   translation: renderTranslation,
   vocabulary: renderVocabulary,
   settings: renderSettings,
+  obsidian: renderObsidian,
 };
 
 const initialState = createHydratedState(seedState);

@@ -128,6 +128,12 @@ const iconSet = {
       <path d="M19.5 16a7 7 0 0 1-11.2 5.2L4.5 18.5" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
   `,
+  obsidian: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3L3 9v6l5 3v-4.5L5 12l7-4 7 4-3 1.5V18l5-3V9L12 3z" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M9 14l3 7 3-7" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  `,
 };
 
 export function icon(name) {

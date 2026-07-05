@@ -58,6 +58,7 @@ export function createAppShell(store, navigate) {
         ${navItem("checkin", "打卡日历", "checkin")}
         ${navItem("profile", "个人中心", "user")}
         ${navItem("settings", "设置", "gear")}
+        ${navItem("obsidian", "Obsidian", "obsidian")}
       </nav>
       <div class="project-chip">
         ${icon("pin")}

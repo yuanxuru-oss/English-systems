@@ -2064,3 +2064,69 @@ trans-mark.trans-match,
 
 
 
+
+/* --- Obsidian bridge --- */
+
+.obsidian-panel {
+  padding: 24px 28px;
+}
+
+.obsidian-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.obsidian-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.obsidian-card {
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper);
+}
+
+.obsidian-card h4 {
+  font-family: "Times New Roman", serif;
+  font-size: 1rem;
+  color: var(--ink);
+  margin: 0 0 6px 0;
+}
+
+.obsidian-card p {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0 0 12px 0;
+}
+
+.obsidian-status {
+  margin-bottom: 16px;
+}
+
+.obs-ok { color: var(--green); font-size: 0.85rem; }
+.obs-err { color: var(--red); font-size: 0.85rem; }
+
+.obsidian-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.obsidian-file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper);
+  font-size: 0.85rem;
+}
