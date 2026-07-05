@@ -1,7 +1,10 @@
 import { evaluateCheckinStatus } from "./checkin.js";
 
-export const STORAGE_KEY = "review-system:v2";
-export const STORAGE_VERSION = 2;
+export const STORAGE_PREFIX = "review-system:v2";
+
+export function storageKey(userName) {
+  return userName ? `${STORAGE_PREFIX}:${userName}` : null;
+}
 
 const PERSISTED_FIELDS = [
   "projects",
@@ -24,7 +27,7 @@ function pickPersistedState(state) {
 
 export function serializePersistedState(state) {
   return JSON.stringify({
-    version: STORAGE_VERSION,
+    version: 2,
     savedAt: new Date().toISOString(),
     state: pickPersistedState(state),
   });
@@ -32,21 +35,24 @@ export function serializePersistedState(state) {
 
 export function createHydratedState(seedState, storage = globalThis.localStorage) {
   const baseState = structuredClone(seedState);
+  const userName = baseState.userName;
+  const key = storageKey(userName);
 
-  if (!storage || typeof storage.getItem !== "function") {
+  // No login → seed data only, no persistence
+  if (!userName || !key || !storage || typeof storage.getItem !== "function") {
     baseState.checkin = evaluateCheckinStatus(baseState.studyLog);
     return baseState;
   }
 
   try {
-    const raw = storage.getItem(STORAGE_KEY);
+    const raw = storage.getItem(key);
     if (!raw) {
       baseState.checkin = evaluateCheckinStatus(baseState.studyLog);
       return baseState;
     }
 
     const parsed = JSON.parse(raw);
-    if (parsed.version !== STORAGE_VERSION || !parsed.state || typeof parsed.state !== "object") {
+    if (parsed.version !== 2 || !parsed.state || typeof parsed.state !== "object") {
       baseState.checkin = evaluateCheckinStatus(baseState.studyLog);
       return baseState;
     }
@@ -62,36 +68,26 @@ export function createHydratedState(seedState, storage = globalThis.localStorage
     if (Array.isArray(projects) && projects.length > 0) {
       const hasFolders = projects.some((p) => Array.isArray(p.folders) && p.folders.length > 0);
       if (!hasFolders) {
-        try { storage.removeItem(STORAGE_KEY); } catch {}
+        try { storage.removeItem(key); } catch {}
         const fresh = structuredClone(seedState);
         fresh.checkin = evaluateCheckinStatus(fresh.studyLog);
         return fresh;
       }
     }
 
-    // Data migration: rename old project titles
-    const migrations = {
-      "期末英语总复习": "英语练习清单",
-      "CET 期末英语总复习": "英语练习清单",
-    };
+    // Data migration
+    const migrations = { "期末英语总复习": "英语练习清单", "CET 期末英语总复习": "英语练习清单" };
     let migrated = false;
     if (Array.isArray(projects)) {
       for (const p of projects) {
-        if (migrations[p.title]) {
-          p.title = migrations[p.title];
-          migrated = true;
-        }
+        if (migrations[p.title]) { p.title = migrations[p.title]; migrated = true; }
       }
     }
     if (migrated) {
-      // Persist the migration immediately
       try { persistState(baseState, storage); } catch {}
     }
   } catch {
-    return {
-      ...baseState,
-      checkin: evaluateCheckinStatus(baseState.studyLog),
-    };
+    return { ...baseState, checkin: evaluateCheckinStatus(baseState.studyLog) };
   }
 
   return {
@@ -103,11 +99,9 @@ export function createHydratedState(seedState, storage = globalThis.localStorage
 }
 
 export function persistState(state, storage = globalThis.localStorage) {
-  if (!storage || typeof storage.setItem !== "function") {
-    return;
-  }
-
+  const key = storageKey(state.userName);
+  if (!key || !storage || typeof storage.setItem !== "function") return;
   try {
-    storage.setItem(STORAGE_KEY, serializePersistedState(state));
+    storage.setItem(key, serializePersistedState(state));
   } catch {}
 }

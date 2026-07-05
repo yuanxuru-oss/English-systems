@@ -9,7 +9,7 @@ export function renderProfile(store, navigate) {
   const totalFlashcards = state.flashcards.length;
   const masteredFlashcards = state.flashcards.filter((card) => card.mastered).length;
   const userName = state.userName || "";
-  const isLoggedIn = state.userName && state.userName.trim().length > 0;
+  const isLoggedIn = !!userName;
 
   el.innerHTML = `
     <section class="paper-panel profile-layout">
@@ -50,25 +50,14 @@ export function renderProfile(store, navigate) {
 
       <div class="profile-section">
         <p class="label">账号设置</p>
-        ${isLoggedIn ? `
-          <div class="login-card">
-            <div class="login-card-header">
-              <span>👤 已登录</span>
-              <span class="text-muted">用户名：${userName}</span>
-            </div>
-            <p>你的学习数据保存在此浏览器中，可以在不同试卷间自由切换。</p>
-            <button class="secondary-btn" data-action="logout">退出登录</button>
+        <div class="login-card">
+          <div class="login-card-header">
+            <span>👤 已登录</span>
+            <span class="text-muted">用户名：${userName}</span>
           </div>
-        ` : `
-          <div class="login-card">
-            <p class="label">设置你的用户名</p>
-            <p>输入一个名字来标识你的学习空间。数据仍保存在本地浏览器中。</p>
-            <div class="login-form">
-              <input type="text" class="profile-name-input" placeholder="输入你的名字…" maxlength="20" />
-              <button class="primary-btn" data-action="login">确认</button>
-            </div>
-          </div>
-        `}
+          <p>你的学习数据保存在此浏览器中，与用户名绑定。</p>
+          <button class="secondary-btn" data-action="logout">退出登录</button>
+        </div>
       </div>
 
       <div class="profile-section">
@@ -81,35 +70,15 @@ export function renderProfile(store, navigate) {
     </section>
   `;
 
-  // Login handler
-  if (!isLoggedIn) {
-    const loginBtn = el.querySelector('[data-action="login"]');
-    const nameInput = el.querySelector('.profile-name-input');
-    if (loginBtn && nameInput) {
-      loginBtn.addEventListener("click", () => {
-        const name = nameInput.value.trim();
-        if (!name) {
-          nameInput.focus();
-          return;
-        }
-        store.actions.setUserName(name);
-      });
-      nameInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          const name = nameInput.value.trim();
-          if (name) store.actions.setUserName(name);
-        }
-      });
-    }
-  } else {
-    const logoutBtn = el.querySelector('[data-action="logout"]');
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", () => {
-        if (confirm("确定要退出登录吗？数据仍会保留在本地。")) {
-          store.actions.setUserName("");
-        }
-      });
-    }
+  // Login handler — now handled by app.js login gate
+  // Profile just shows stats and logout
+  const logoutBtn = el.querySelector('[data-action="logout"]');
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      if (confirm("确定要退出登录吗？")) {
+        if (window.__logout) window.__logout();
+      }
+    });
   }
 
   el.querySelector('[data-action="export"]').addEventListener("click", () => {

@@ -1,5 +1,8 @@
-import { serializePersistedState } from "../../core/persistence.js";
-import { STORAGE_KEY } from "../../core/persistence.js";
+import { serializePersistedState, STORAGE_PREFIX, storageKey } from "../../core/persistence.js";
+
+function getKey(state) {
+  return storageKey(state.userName) || `${STORAGE_PREFIX}:<未登录>`;
+}
 
 const COLOR_THEMES = [
   { value: "default", label: "基础色", desc: "暖纸质感", color: "#b75b3d" },
@@ -23,10 +26,11 @@ export function renderSettings(store, navigate) {
   const settings = state.settings || {};
   const el = document.createElement("div");
   el.className = "stack-layout";
+  const _sk = getKey(state);
 
   const storageSize = (() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(_sk);
       if (!raw) return "空";
       const kb = (new Blob([raw]).size / 1024).toFixed(1);
       return `${kb} KB`;
@@ -53,7 +57,7 @@ export function renderSettings(store, navigate) {
           </div>
         </div>
         <div class="settings-storage-key-row">
-          <input type="text" class="settings-key-input" value="${STORAGE_KEY}" placeholder="review-system:v2" />
+          <input type="text" class="settings-key-input" value="${_sk}" placeholder="review-system:v2" />
           <button class="primary-btn" data-action="change-key">应用</button>
         </div>
         <div class="settings-info" style="margin-top:12px">
@@ -182,7 +186,7 @@ export function renderSettings(store, navigate) {
           return;
         }
         if (confirm("导入将覆盖当前所有学习数据（项目、错题、闪卡等），确定继续？")) {
-          localStorage.setItem(STORAGE_KEY, reader.result);
+          localStorage.setItem(_sk, reader.result);
           location.reload();
         }
       } catch {
@@ -196,12 +200,12 @@ export function renderSettings(store, navigate) {
   el.querySelector('[data-action="change-key"]')?.addEventListener("click", () => {
     const newKey = el.querySelector('.settings-key-input')?.value?.trim();
     if (!newKey) return;
-    if (newKey === STORAGE_KEY) return;
-    if (!confirm(`将数据从 "${STORAGE_KEY}" 迁移到 "${newKey}"，刷新后生效。确定？`)) return;
-    const existing = localStorage.getItem(STORAGE_KEY);
+    if (newKey === _sk) return;
+    if (!confirm(`将数据从 "${_sk}" 迁移到 "${newKey}"，刷新后生效。确定？`)) return;
+    const existing = localStorage.getItem(_sk);
     if (existing) {
       localStorage.setItem(newKey, existing);
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(_sk);
     }
     location.reload();
   });

@@ -42,62 +42,128 @@ const routes = {
   obsidian: renderObsidian,
 };
 
-const initialState = createHydratedState(seedState);
-const store = createStore(initialState, {
-  persist(state) {
-    persistState(state);
-  },
-});
 const app = document.getElementById("app");
+let store;
+let navigate;
 
-function renderShell(contentNode) {
-  const shell = createAppShell(store, navigate);
-  shell.querySelector("[data-shell-content]").appendChild(contentNode);
-  app.replaceChildren(shell);
+// ── Login screen ──
+
+function renderLoginScreen(onLogin) {
+  const el = document.createElement("div");
+  el.className = "login-gate";
+  el.innerHTML = `
+    <div class="login-gate-card paper-panel">
+      <div class="login-gate-brand">
+        <p class="label">REVIEW ATELIER</p>
+        <h1>鱼骨头英语复习系统</h1>
+        <p class="login-gate-slogan">把英语啃的只剩鱼骨头。</p>
+      </div>
+      <hr class="sketch-divider" />
+      <div class="login-gate-form">
+        <p class="label">输入你的名字，进入学习空间</p>
+        <p style="font-size:0.82rem;color:var(--muted)">数据保存在你的浏览器中，不会上传。</p>
+        <input type="text" class="login-gate-input" placeholder="你的名字…" maxlength="20" autofocus />
+        <button class="primary-btn login-gate-btn">进入</button>
+      </div>
+    </div>
+  `;
+  const input = el.querySelector(".login-gate-input");
+  const btn = el.querySelector(".login-gate-btn");
+  const submit = () => {
+    const name = input.value.trim();
+    if (!name) { input.focus(); return; }
+    onLogin(name);
+  };
+  btn.addEventListener("click", submit);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+  return el;
 }
 
-function navigate(route, payload = {}) {
-  store.actions.setRoute(route, payload);
+// ── Init ──
 
-  const render = routes[route];
-  if (render) {
-    renderShell(render(store, navigate));
-    return;
+function bootstrap(userName) {
+  const seed = structuredClone(seedState);
+  if (userName) seed.userName = userName;
+  const initialState = createHydratedState(seed);
+  store = createStore(initialState, { persist(s) { persistState(s); } });
+
+  // Apply theme
+  const theme = initialState.settings?.colorTheme || "default";
+  document.documentElement.setAttribute("data-theme", theme);
+
+  function renderShell(contentNode) {
+    const shell = createAppShell(store, navigate);
+    shell.querySelector("[data-shell-content]").appendChild(contentNode);
+    app.replaceChildren(shell);
   }
 
-  // fallback: dashboard
-  const state = store.getState();
-  if (!state.currentProjectId) {
-    store.actions.selectProject(state.projects[0]?.id ?? null);
-  }
-  renderShell(renderDashboard(store, navigate));
-}
-
-try {
-  navigate("dashboard");
-} catch (e) {
-  console.error("Init failed, clearing storage and retrying:", e);
-  try { globalThis.localStorage?.removeItem("review-system:v2"); } catch {}
-  try { globalThis.localStorage?.removeItem("review-system:v1"); } catch {}
-  const fresh = createHydratedState(seedState);
-  const store2 = createStore(fresh, { persist(s) { persistState(s); } });
-  const dash = renderDashboard(store2, (route, payload) => {
-    store2.actions.setRoute(route, payload);
-    const shell2 = createAppShell(store2, () => {});
-    const renderFn = routes[route];
-    if (renderFn) {
-      shell2.querySelector("[data-shell-content]").appendChild(renderFn(store2, () => {}));
+  navigate = (route, payload = {}) => {
+    store.actions.setRoute(route, payload);
+    const render = routes[route];
+    if (render) {
+      renderShell(render(store, navigate));
+      return;
     }
-    app.replaceChildren(shell2);
-  });
-  const shell2 = createAppShell(store2, () => {});
-  shell2.querySelector("[data-shell-content]").appendChild(dash);
-  app.replaceChildren(shell2);
+    const state = store.getState();
+    if (!state.currentProjectId) {
+      store.actions.selectProject(state.projects[0]?.id ?? null);
+    }
+    renderShell(renderDashboard(store, navigate));
+  };
+
+  initQuickNote();
+
+  try {
+    navigate("dashboard");
+  } catch (e) {
+    console.error("Init failed:", e);
+    try { globalThis.localStorage?.removeItem("review-system:v2:" + userName); } catch {}
+    const fresh = createHydratedState(seed);
+    store = createStore(fresh, { persist(s) { persistState(s); } });
+    const shell = createAppShell(store, navigate);
+    shell.querySelector("[data-shell-content]").appendChild(renderDashboard(store, navigate));
+    app.replaceChildren(shell);
+  }
 }
 
-// Initialize quick-note overlay after app is mounted
-initQuickNote();
+// ── Logout handler (called from profile) ──
 
-// Apply saved color theme on init
-const theme = initialState.settings?.colorTheme || "default";
-document.documentElement.setAttribute("data-theme", theme);
+window.__logout = () => {
+  // Remove any stored key with old format too
+  try {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith("review-system:v2:"));
+    keys.forEach(k => localStorage.removeItem(k));
+  } catch {}
+  app.replaceChildren(renderLoginScreen(bootstrap));
+};
+
+// ── Start ──
+
+// Check if there's a saved userName from old format (pre-login-gate migration)
+let savedName = null;
+try {
+  // Try old format first
+  const oldRaw = localStorage.getItem("review-system:v2");
+  if (oldRaw) {
+    const old = JSON.parse(oldRaw);
+    if (old.state?.userName) {
+      savedName = old.state.userName;
+    }
+  }
+} catch {}
+
+// If no old-format user, check any user-specific keys
+if (!savedName) {
+  try {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith("review-system:v2:"));
+    if (keys.length > 0) {
+      savedName = keys[0].replace("review-system:v2:", "");
+    }
+  } catch {}
+}
+
+if (savedName) {
+  bootstrap(savedName);
+} else {
+  app.replaceChildren(renderLoginScreen(bootstrap));
+}
