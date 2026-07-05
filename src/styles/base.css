@@ -1,22 +1,22 @@
 :root {
   color-scheme: light;
-  --paper: #f5efe3;
-  --paper-strong: #eee4d3;
-  --ink: #1d1a16;
-  --muted: #746c63;
-  --line: #c9bba6;
-  --panel: rgba(255, 251, 245, 0.9);
+  --paper: rgba(255, 254, 252, 0.92);
+  --paper-strong: rgba(255, 255, 255, 0.95);
+  --ink: #1a1918;
+  --muted: #5d5b59;
+  --line: #e5e3df;
+  --panel: rgba(254, 253, 252, 0.9);
   --accent: #b75b3d;
-  --accent-soft: #eac5b8;
+  --accent-soft: #ead4cb;
   --green: #56795b;
   --gold: #b69a55;
   --rose: #a76464;
-  --shadow: 0 24px 60px rgba(82, 60, 29, 0.12);
-  --body-bg-from: #fbf7f0;
-  --body-bg-to: #f3ecdf;
-  --body-bg-radial: rgba(183, 91, 61, 0.08);
-  --nav-hover-bg: rgba(104, 81, 47, 0.05);
-  --border-subtle: rgba(93, 67, 31, 0.12);
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --body-bg-from: #f7f5f1;
+  --body-bg-to: #f4f2ee;
+  --body-bg-radial: transparent;
+  --nav-hover-bg: rgba(0, 0, 0, 0.03);
+  --border-subtle: rgba(0, 0, 0, 0.06);
 }
 
 /* --- Color Themes --- */
