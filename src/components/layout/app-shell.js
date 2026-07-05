@@ -20,8 +20,8 @@ export function createAppShell(store, navigate) {
       <div class="paper-noise"></div>
       <div class="brand-block">
         <p class="brand-kicker">REVIEW ATELIER</p>
-        <h1>鱼头英语复习系统</h1>
-        <p class="brand-copy">专属于个人的英语复习系统。</p>
+        <h1>鱼骨头英语复习系统</h1>
+        <p class="brand-copy">把英语啃的只剩鱼骨头。</p>
       </div>
       <div class="sidebar-sketch">
         <div class="sketch-badge">${icon("user")} ${state.userName || "我的"}学习空间</div>
@@ -70,11 +70,12 @@ export function createAppShell(store, navigate) {
     <main class="main-panel">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Mixed Home</p>
           <h2>${project?.title ?? "英语复习"}</h2>
         </div>
         <div class="checkin-state ${state.checkin.isCheckedIn ? "is-checked" : ""}">
-          ${state.checkin.isCheckedIn ? "今日已打卡" : "今日未打卡"}
+          ${state.checkin.isCheckedIn
+            ? '<span class="fishbone-stamp">🐟</span> 今日已打卡'
+            : "今日未打卡"}
         </div>
       </header>
       <section data-shell-content></section>

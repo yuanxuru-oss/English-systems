@@ -191,6 +191,26 @@
   color: var(--green);
   border-color: rgba(86, 121, 91, 0.35);
   background: rgba(86, 121, 91, 0.08);
+  animation: stamp-in 0.5s ease-out;
+}
+
+.fishbone-stamp {
+  display: inline-block;
+  font-size: 1.3rem;
+  animation: stamp-pop 0.4s ease-out;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
+}
+
+@keyframes stamp-in {
+  0% { transform: scale(0.6); opacity: 0.3; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes stamp-pop {
+  0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+  50% { transform: scale(1.3) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
 }
 
 .project-chip {

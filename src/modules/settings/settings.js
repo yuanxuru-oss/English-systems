@@ -121,7 +121,7 @@ export function renderSettings(store, navigate) {
         </div>
         <div class="settings-info">
           <span class="settings-info-label">项目</span>
-          <span class="settings-info-value">鱼头英语复习系统</span>
+          <span class="settings-info-value">鱼骨头英语复习系统</span>
         </div>
       `)}
     </section>
