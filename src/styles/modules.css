@@ -1979,14 +1979,7 @@ trans-mark.trans-match,
   100% { transform: rotate(0deg); }
 }
 
-.fish-stepper-connector {
-  flex-shrink: 0;
-  width: 20px;
-  height: 2px;
-  background: var(--line);
-  border-radius: 1px;
-  margin: 0 8px;
-}
+.fish-stepper-connector { display: none; }
 
 /* --- Step items --- */
 
@@ -2007,17 +2000,7 @@ trans-mark.trans-match,
   margin: 0 4px;
 }
 
-.fish-step-item::after {
-  content: "";
-  position: absolute;
-  right: -22px;
-  top: 50%;
-  width: 18px;
-  height: 2px;
-  background: var(--line);
-  border-radius: 1px;
-  transform: translateY(-50%);
-}
+.fish-step-item::after { display: none; }
 
 .fish-step-item:last-child::after {
   display: none;
@@ -2074,6 +2057,7 @@ trans-mark.trans-match,
   top: -6px;
   right: -6px;
 }
+
 
 
 

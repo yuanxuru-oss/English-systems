@@ -53,7 +53,6 @@ export function renderFishProgress(store, navigate) {
       </div>
       <div class="fish-stepper-track">
         ${logoHTML}
-        <div class="fish-stepper-connector"></div>
         ${stepItems}
       </div>
     </section>
