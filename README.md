@@ -135,8 +135,5 @@ review-system/
 
 ## 📄 License
 
-MIT
-
----
 
 <p align="center">🐟 — 啃完英语，只剩鱼骨头 — 🦴</p>
