@@ -29,6 +29,7 @@ function highlightMatches(userText, refText) {
 }
 
 export function renderTranslation(store, navigate) {
+  store.actions.markFishStep("translation");
   const state = store.getState();
   const folder = store.getCurrentFolder();
   const transModules = folder ? folder.modules.filter((item) => item.type === "translation") : [];

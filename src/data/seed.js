@@ -11,6 +11,7 @@ export const seedState = {
     showReference: true,
     dailyReminder: false,
     reminderTime: "20:00",
+    fishSteps: [],
   },
   projectKeywords: ["satisfaction", "empathy", "adversity", "regret", "liberation"],
   cetVocabulary: [

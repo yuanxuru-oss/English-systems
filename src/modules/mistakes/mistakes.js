@@ -1,4 +1,5 @@
 export function renderMistakes(store, navigate) {
+  store.actions.markFishStep("mistakes");
   const state = store.getState();
   const el = document.createElement("div");
   el.className = "stack-layout";

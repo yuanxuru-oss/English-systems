@@ -1,4 +1,5 @@
 import { icon } from "../../components/icons.js";
+import { renderFishProgress } from "../../components/fish-progress.js";
 
 function moduleIcon(type) {
   return `<span class="module-spot-icon">${icon(type)}</span>`;
@@ -7,6 +8,8 @@ function moduleIcon(type) {
 export function renderDashboard(store, navigate) {
   const state = store.getState();
   const project = state.projects.find((item) => item.id === state.currentProjectId) ?? state.projects[0];
+  const fishSteps = state.settings?.fishSteps || [];
+  const fishProgress = fishSteps.length;
 
   const el = document.createElement("div");
   el.className = "page-grid";
@@ -50,6 +53,7 @@ export function renderDashboard(store, navigate) {
         </div>
       </div>
     </section>
+    ${renderFishProgress(fishProgress)}
     <section class="panel-row">
       <article class="paper-panel stat-panel">
         <p class="label">最近项目</p>

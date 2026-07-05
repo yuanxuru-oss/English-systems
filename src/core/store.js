@@ -247,6 +247,14 @@ export function createStore(initialState, options = {}) {
     commit();
   };
 
+  actions.markFishStep = function (step) {
+    const steps = state.settings?.fishSteps || [];
+    if (!steps.includes(step)) {
+      state.settings = { ...(state.settings || {}), fishSteps: [...steps, step] };
+      commit();
+    }
+  };
+
   return {
     getState() {
       return state;

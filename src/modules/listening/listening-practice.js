@@ -2,6 +2,7 @@ import { renderMCQSection, bindMCQSubmit } from "../shared/mcq-renderer.js";
 import { createAudioPlayer } from "../../components/audio-player.js";
 
 export function renderListeningPractice(store, navigate) {
+  store.actions.markFishStep("listening");
   const state = store.getState();
   const folder = store.getCurrentFolder();
   const listeningModules = folder ? folder.modules.filter((item) => item.type === "listening") : [];

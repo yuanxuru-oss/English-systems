@@ -1,4 +1,5 @@
 export function renderFlashcards(store, navigate) {
+  store.actions.markFishStep("flashcards");
   const state = store.getState();
   const current = state.flashcards.find((item) => !item.mastered) ?? state.flashcards[0];
   const el = document.createElement("div");

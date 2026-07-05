@@ -2,6 +2,7 @@ import { createHighlighter } from "../../core/highlighter.js";
 import { renderMCQSection, bindMCQSubmit } from "../shared/mcq-renderer.js";
 
 export function renderReadingPractice(store, navigate) {
+  store.actions.markFishStep("reading");
   const state = store.getState();
   const folder = store.getCurrentFolder();
   const readingModules = folder ? folder.modules.filter((item) => item.type === "reading") : [];

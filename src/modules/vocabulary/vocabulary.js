@@ -1,4 +1,5 @@
 export function renderVocabulary(store, navigate) {
+  store.actions.markFishStep("vocabulary");
   const folder = store.getCurrentFolder();
   const vocabModules = folder ? folder.modules.filter((item) => item.type === "vocabulary") : [];
 
