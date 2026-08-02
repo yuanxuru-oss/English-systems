@@ -6405,8 +6405,7 @@ function renderProfile(store, navigate) {
 
   el.querySelector('[data-action="clear"]').addEventListener("click", () => {
     if (confirm("确定要清除所有本地学习数据吗？此操作不可恢复。")) {
-      localStorage.removeItem("review-system:v2");
-      localStorage.removeItem("review-system:v1");
+      localStorage.removeItem(`review-system:v2:${userName}`);
       location.reload();
     }
   });
@@ -7527,6 +7526,43 @@ const seedState = {
   },
 };
 
+// New learners start with a usable workspace, but never inherit the demo papers.
+function createEmptyLearningState(userName = "") {
+  const projectId = `project-${Date.now()}`;
+  const folderId = `folder-${Date.now()}`;
+
+  return {
+    route: "dashboard",
+    routePayload: {},
+    currentProjectId: projectId,
+    currentFolderId: folderId,
+    importPreview: null,
+    userName: userName.trim(),
+    settings: structuredClone(seedState.settings),
+    projectKeywords: [],
+    cetVocabulary: [],
+    projects: [{
+      id: projectId,
+      title: "我的英语复习",
+      description: "从导入你的第一份复习内容开始。",
+      folders: [{
+        id: folderId,
+        title: "第一份复习资料",
+        description: "这里还没有练习内容，导入后会显示在这里。",
+        modules: [],
+      }],
+    }],
+    mistakes: [],
+    flashcards: [],
+    studyLog: [],
+    checkin: {
+      today: new Date().toISOString().slice(0, 10),
+      isCheckedIn: false,
+      completedActions: [],
+    },
+  };
+}
+
 const ANALYTICS_STORAGE_PREFIX = "review-system:analytics-user-id:";
 const POSTHOG_TOKEN = "phc_nN7VnQ5KUs6snfdM7VhT9nES4fTY9Vyrbi5PpT73U9C7";
 const POSTHOG_HOST = "https://us.i.posthog.com";
@@ -8018,9 +8054,10 @@ function renderLoginScreen(onLogin) {
 
 // ── Init ──
 
-function bootstrap(userName) {
-  const seed = structuredClone(seedState);
-  if (userName) seed.userName = userName;
+function bootstrap(userName, { useLegacyDemo = false } = {}) {
+  const seed = useLegacyDemo
+    ? { ...structuredClone(seedState), userName }
+    : createEmptyLearningState(userName);
   const initialState = createHydratedState(seed);
   store = createStore(initialState, {
     persist(s) { persistState(s); },
@@ -8078,11 +8115,6 @@ function bootstrap(userName) {
 // ── Logout handler (called from profile) ──
 
 window.__logout = () => {
-  // Remove any stored key with old format too
-  try {
-    const keys = Object.keys(localStorage).filter(k => k.startsWith("review-system:v2:"));
-    keys.forEach(k => localStorage.removeItem(k));
-  } catch {}
   app.replaceChildren(renderLoginScreen(bootstrap));
 };
 
@@ -8112,7 +8144,7 @@ if (!savedName) {
 }
 
 if (savedName) {
-  bootstrap(savedName);
+  bootstrap(savedName, { useLegacyDemo: true });
 } else {
   app.replaceChildren(renderLoginScreen(bootstrap));
 }
