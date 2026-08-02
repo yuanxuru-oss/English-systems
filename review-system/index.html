@@ -151,6 +151,8 @@ mark {
 }
 
 .sidebar {
+  display: flex;
+  flex-direction: column;
   padding: 32px 24px;
   border-right: 1px solid var(--border-subtle);
   background: var(--panel);
@@ -161,6 +163,25 @@ mark {
 
 .main-panel {
   padding: 28px;
+  min-width: 0;
+}
+
+.sidebar-toggle,
+.sidebar-close {
+  display: none;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper);
+  color: var(--ink);
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px 17px 13px 16px;
+}
+
+.sidebar-toggle .nav-icon,
+.sidebar-close .nav-icon {
+  color: var(--accent);
 }
 
 .topbar {
@@ -220,7 +241,8 @@ mark {
 .brand-block,
 .nav-list,
 .project-chip,
-.sidebar-sketch {
+.sidebar-sketch,
+.app-info-card {
   position: relative;
   z-index: 1;
 }
@@ -392,18 +414,238 @@ mark {
   font-size: 0.95rem;
 }
 
-/* --- Version Badge --- */
-.version-badge {
-  margin-top: 16px;
-  padding: 4px 10px;
+.app-info-card {
+  margin-top: auto;
+  padding: 13px 14px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 38%, transparent);
+  border-radius: 18px 14px 20px 16px;
+  background: color-mix(in srgb, var(--accent-soft) 28%, var(--paper));
+  font-family: "Segoe UI", sans-serif;
+}
+
+.app-info-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--ink);
+}
+
+.app-info-card-title strong {
+  color: var(--accent);
+  font-family: "Times New Roman", serif;
+  white-space: nowrap;
   font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.app-info-card p {
+  margin: 6px 0 0;
   color: var(--muted);
-  font-family: var(--font-system);
-  letter-spacing: 0.04em;
-  border: 1px dashed rgba(183, 91, 61, 0.2);
-  border-radius: 10px 14px 8px 12px;
-  display: inline-block;
-  opacity: 0.7;
+  font-size: 0.72rem;
+}
+
+.study-path {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px;
+  overflow-x: auto;
+}
+
+.study-path button {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 8px;
+  padding: 8px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: "Segoe UI", sans-serif;
+  font-size: 0.86rem;
+}
+
+.study-path button:hover {
+  color: var(--accent);
+}
+
+.study-path button span {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px dashed var(--accent);
+  border-radius: 50%;
+  color: var(--accent);
+  font-family: "Times New Roman", serif;
+  font-size: 0.74rem;
+}
+
+.study-path i {
+  flex: 1 0 18px;
+  height: 1px;
+  min-width: 18px;
+  background: repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 8px);
+}
+
+.today-focus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 24px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 42%, transparent);
+  border-radius: 23px 18px 26px 20px;
+  background: color-mix(in srgb, var(--accent-soft) 38%, var(--paper));
+}
+
+.today-focus .label {
+  margin-bottom: 5px;
+}
+
+.today-focus h4,
+.today-focus p {
+  margin: 0;
+}
+
+.today-focus h4 {
+  font-size: 1.16rem;
+}
+
+.today-focus p:not(.label) {
+  margin-top: 5px;
+  color: var(--muted);
+  font-family: "Segoe UI", sans-serif;
+  font-size: 0.9rem;
+}
+
+.today-focus .primary-btn {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    z-index: 30;
+    inset: 0 auto 0 0;
+    width: min(320px, calc(100vw - 56px));
+    overflow-y: auto;
+    transform: translateX(-105%);
+    transition: transform 220ms ease;
+    box-shadow: 18px 0 38px rgba(29, 24, 19, 0.16);
+  }
+
+  .app-shell.is-sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .app-shell.is-sidebar-open::after {
+    content: "";
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    background: rgba(25, 22, 19, 0.28);
+  }
+
+  .sidebar-toggle,
+  .sidebar-close {
+    display: inline-flex;
+  }
+
+  .sidebar-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 2;
+  }
+
+  .brand-block {
+    padding-right: 48px;
+  }
+
+  .main-panel {
+    padding: 18px;
+  }
+
+  .topbar {
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .topbar > div:first-of-type {
+    min-width: 0;
+  }
+
+  .topbar h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    overflow-wrap: anywhere;
+  }
+
+  .checkin-state {
+    margin-left: auto;
+    padding: 8px 11px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .fishbone-stamp {
+    display: none;
+  }
+
+  .paper-panel {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .study-path {
+    margin: 0 -8px;
+    padding-bottom: 10px;
+  }
+
+  .today-focus {
+    align-items: flex-start;
+    padding: 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .main-panel {
+    padding: 14px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
+
+  .checkin-state {
+    display: none;
+  }
+
+  .hero-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions button {
+    width: 100%;
+  }
+
+  .today-focus {
+    display: grid;
+    gap: 14px;
+  }
+
+  .today-focus .primary-btn {
+    width: 100%;
+  }
 }
 
 .paper-panel {
@@ -454,6 +696,64 @@ mark {
 .secondary-btn:hover {
   transform: translateY(-1px);
   background: var(--paper-strong);
+}
+
+.nav-pill.is-active {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+  color: var(--ink);
+}
+
+.nav-group {
+  border: 1px solid rgba(104, 81, 47, 0.12);
+  border-radius: 20px 17px 19px 16px;
+  background: color-mix(in srgb, var(--paper) 84%, transparent);
+  overflow: hidden;
+}
+
+.nav-group summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 16px;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.nav-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-group-arrow {
+  margin-left: auto;
+  color: var(--muted);
+  transition: transform 160ms ease;
+}
+
+.nav-group[open] .nav-group-arrow {
+  transform: rotate(180deg);
+}
+
+.nav-sublist {
+  display: grid;
+  gap: 6px;
+  padding: 0 8px 8px 42px;
+}
+
+.nav-sublist .nav-pill {
+  min-height: 38px;
+  padding: 8px 10px;
+  border-color: transparent;
+  background: transparent;
+  font-size: 0.86rem;
+}
+
+.nav-sublist .nav-icon,
+.nav-sublist .nav-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .nav-icon {
@@ -755,6 +1055,62 @@ mark {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px;
+}
+
+.import-section {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 24px 20px 26px 22px;
+  background: linear-gradient(180deg, var(--paper), rgba(255, 250, 242, 0.74));
+  border: 1px solid var(--border-subtle);
+}
+
+.import-section-ai {
+  position: relative;
+}
+
+.import-section-ai::after,
+.import-section-manual::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px dashed rgba(127, 103, 69, 0.12);
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+.import-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.import-section-head h4 {
+  margin: 0 0 6px;
+}
+
+.import-section-head p:last-child {
+  margin: 0;
+}
+
+.import-ai-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 18px;
+  position: relative;
+  z-index: 1;
+}
+
+.import-ai-card {
+  min-height: 220px;
+}
+
+.import-ai-card-note {
+  background: linear-gradient(180deg, var(--paper), rgba(234, 212, 203, 0.22));
 }
 
 .editor-panel {
@@ -2112,6 +2468,140 @@ trans-mark.trans-match,
   background: var(--accent);
 }
 
+.ai-translator-toggle {
+  position: fixed;
+  right: 20px;
+  bottom: 78px;
+  z-index: 998;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px 920px 999px 900px;
+  border: 1.5px dashed rgba(183, 91, 61, 0.28);
+  background: var(--paper);
+  box-shadow: 0 3px 14px var(--border-subtle);
+  color: var(--accent);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ai-translator-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px var(--border-subtle);
+}
+
+.ai-translator-toggle-icon {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(183, 91, 61, 0.1);
+  font-weight: 700;
+}
+
+.ai-translator-toggle-text {
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.ai-translator-floating {
+  position: fixed;
+  z-index: 1001;
+  width: min(380px, calc(100vw - 24px));
+  padding: 22px;
+}
+
+.ai-translator-dragbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: start;
+  cursor: grab;
+}
+
+.ai-translator-dragbar:active {
+  cursor: grabbing;
+}
+
+.ai-translator-window {
+  display: grid;
+  gap: 14px;
+}
+
+.ai-translator-head-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ai-translator-dragbar h4 {
+  margin: 0;
+}
+
+.ai-translator-head-btn {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.ai-translator-head-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ai-translator-input-wrap {
+  display: grid;
+  gap: 8px;
+}
+
+.ai-translator-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px 18px 12px 16px;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper);
+  font-size: 0.95rem;
+}
+
+.ai-translator-kicker {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ai-translator-actions {
+  margin-top: 0;
+}
+
+.ai-translator-result-card {
+  padding: 16px 18px;
+  border-radius: 18px 22px 16px 20px;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper);
+}
+
+.ai-translator-result-title {
+  font-size: 0.96rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.ai-translator-result {
+  white-space: pre-line;
+  line-height: 1.7;
+  font-family: "Segoe UI", sans-serif;
+  color: var(--muted);
+}
+
 .quick-note-overlay {
   position: fixed;
   inset: 0;
@@ -2430,6 +2920,7 @@ trans-mark.trans-match,
   .panel-row,
   .detail-grid,
   .import-duo,
+  .import-ai-grid,
   .intensive-panels,
   .profile-stats {
     grid-template-columns: 1fr;
@@ -2442,6 +2933,10 @@ trans-mark.trans-match,
   .sidebar {
     border-right: none;
     border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .ai-translator-floating {
+    width: calc(100vw - 24px);
   }
 }
 
@@ -2957,23 +3452,47 @@ function parseTemplateBlock(raw) {
 
 function createStore(initialState, options = {}) {
   let state = structuredClone(initialState);
+  const analytics = options.analytics || {};
 
   function commit() {
     options.persist?.(state);
+  }
+
+  function track(eventName, properties = {}) {
+    analytics.track?.(eventName, properties);
+  }
+
+  function getModuleContext(moduleId) {
+    for (const project of state.projects) {
+      for (const folder of project.folders || []) {
+        const module = folder.modules.find((item) => item.id === moduleId);
+        if (module) {
+          return { project, folder, module };
+        }
+      }
+    }
+    return { project: null, folder: null, module: null };
   }
 
   const actions = {
     setRoute(route, payload = {}) {
       state.route = route;
       state.routePayload = payload;
+      track("route_changed", { route });
       commit();
     },
     selectProject(projectId) {
       state.currentProjectId = projectId;
+      track("project_selected", { project_id: projectId, route: state.route });
       commit();
     },
     selectFolder(folderId) {
       state.currentFolderId = folderId;
+      track("folder_selected", {
+        project_id: state.currentProjectId,
+        folder_id: folderId,
+        route: state.route,
+      });
       commit();
     },
     createFolder(title = "新模拟卷") {
@@ -2988,23 +3507,44 @@ function createStore(initialState, options = {}) {
       };
       project.folders.push(newFolder);
       state.currentFolderId = newFolder.id;
+      track("folder_created", {
+        project_id: project.id,
+        folder_id: newFolder.id,
+        folder_title: newFolder.title,
+        route: state.route,
+      });
       commit();
       return newFolder;
     },
     renameFolder(folderId, newTitle) {
       const folder = getFolderById(folderId);
       if (folder) {
+        const previousTitle = folder.title;
         folder.title = newTitle;
+        track("folder_renamed", {
+          project_id: state.currentProjectId,
+          folder_id: folderId,
+          previous_title: previousTitle,
+          next_title: newTitle,
+          route: state.route,
+        });
         commit();
       }
     },
     deleteFolder(folderId) {
       const project = getCurrentProject();
       if (!project || project.folders.length <= 1) return;
+      const folder = getFolderById(folderId);
       project.folders = project.folders.filter((f) => f.id !== folderId);
       if (state.currentFolderId === folderId) {
         state.currentFolderId = project.folders[0]?.id || null;
       }
+      track("folder_deleted", {
+        project_id: project.id,
+        folder_id: folderId,
+        folder_title: folder?.title,
+        route: state.route,
+      });
       commit();
     },
     submitReadingAnswers(moduleId, answers) {
@@ -3014,6 +3554,13 @@ function createStore(initialState, options = {}) {
       const record = state.mistakes.find((item) => item.id === mistakeId);
       if (record) {
         record.note = note;
+        track("mistake_note_saved", {
+          mistake_id: mistakeId,
+          module_id: record.moduleId,
+          item_id: record.itemId,
+          note_length: note.trim().length,
+          route: state.route,
+        });
         commit();
       }
     },
@@ -3022,6 +3569,13 @@ function createStore(initialState, options = {}) {
       if (record) {
         record.mastered = !record.mastered;
         record.status = record.mastered ? "mastered" : "reviewing";
+        track("mistake_mastery_toggled", {
+          mistake_id: mistakeId,
+          module_id: record.moduleId,
+          item_id: record.itemId,
+          mastered: record.mastered,
+          route: state.route,
+        });
         commit();
       }
     },
@@ -3039,6 +3593,13 @@ function createStore(initialState, options = {}) {
           context: record.prompt,
           mastered: false,
         });
+        track("mistake_added_to_flashcards", {
+          mistake_id: mistakeId,
+          module_id: record.moduleId,
+          item_id: record.itemId,
+          word: record.answer,
+          route: state.route,
+        });
         commit();
       }
     },
@@ -3046,6 +3607,12 @@ function createStore(initialState, options = {}) {
       const card = state.flashcards.find((item) => item.id === cardId);
       if (card) {
         card.mastered = mastered;
+        track("flashcard_reviewed", {
+          card_id: cardId,
+          word: card.word,
+          mastered,
+          route: state.route,
+        });
       }
 
       state.studyLog.unshift({
@@ -3059,33 +3626,188 @@ function createStore(initialState, options = {}) {
       actions.refreshCheckin();
       commit();
     },
+    saveTranslationDraft(moduleId, answers) {
+      const { module } = getModuleContext(moduleId);
+      if (!module || !Array.isArray(module.items)) return;
+
+      module.items = module.items.map((item) => ({
+        ...item,
+        userAnswer: answers[item.id] ?? item.userAnswer ?? "",
+      }));
+
+      state.studyLog.unshift({
+        id: `log-${Date.now()}`,
+        type: "translation",
+        moduleId,
+        projectId: state.currentProjectId,
+        date: new Date().toISOString(),
+        title: module.title,
+      });
+
+      actions.refreshCheckin();
+      track("translation_saved", {
+        route: state.route,
+        module_id: moduleId,
+        total_items: module.items.length,
+      });
+      commit();
+    },
+    checkTranslationAnswers(moduleId, answers, threshold = 50) {
+      const { project, folder, module } = getModuleContext(moduleId);
+      if (!module || !Array.isArray(module.items)) return null;
+
+      let matchedCount = 0;
+      module.items = module.items.map((item) => {
+        const userAnswer = answers[item.id] ?? item.userAnswer ?? "";
+        const isCorrect = estimateTranslationMatch(userAnswer, item.reference) >= threshold;
+        if (isCorrect) matchedCount += 1;
+        return {
+          ...item,
+          userAnswer,
+          isCorrect,
+        };
+      });
+
+      state.studyLog.unshift({
+        id: `log-${Date.now()}`,
+        type: "translation",
+        moduleId,
+        projectId: state.currentProjectId,
+        date: new Date().toISOString(),
+        title: module.title,
+      });
+
+      actions.refreshCheckin();
+      track("translation_checked", {
+        route: state.route,
+        project_id: project?.id || state.currentProjectId,
+        folder_id: folder?.id || state.currentFolderId,
+        module_id: moduleId,
+        total_items: module.items.length,
+        matched_count: matchedCount,
+        accuracy: module.items.length ? Number((matchedCount / module.items.length).toFixed(2)) : 0,
+      });
+      commit();
+      return { matchedCount, totalItems: module.items.length };
+    },
+    resetTranslationAnswers(moduleId) {
+      const { module } = getModuleContext(moduleId);
+      if (!module || !Array.isArray(module.items)) return;
+
+      module.items = module.items.map((item) => ({
+        ...item,
+        userAnswer: "",
+        isCorrect: null,
+      }));
+
+      track("translation_reset", {
+        route: state.route,
+        module_id: moduleId,
+      });
+      commit();
+    },
+    addVocabularyToFlashcards(words) {
+      if (!Array.isArray(words) || words.length === 0) return 0;
+      const existingWords = new Set(state.flashcards.map((card) => card.word.toLowerCase()));
+      let addedCount = 0;
+
+      words.forEach((word) => {
+        if (!word?.word) return;
+        const normalized = word.word.toLowerCase();
+        if (existingWords.has(normalized)) return;
+        existingWords.add(normalized);
+        state.flashcards.push({
+          ...word,
+          id: word.id || `flash-${normalized}`,
+        });
+        addedCount += 1;
+      });
+
+      if (addedCount > 0) {
+        track("vocabulary_added_to_flashcards", {
+          route: state.route,
+          added_count: addedCount,
+        });
+        commit();
+      }
+
+      return addedCount;
+    },
+    toggleVocabularyMastered(wordText) {
+      if (!wordText) return false;
+
+      for (const project of state.projects) {
+        for (const folder of project.folders || []) {
+          for (const module of folder.modules || []) {
+            if (module.type !== "vocabulary") continue;
+            const entry = (module.vocabulary || []).find((item) => item.word === wordText);
+            if (entry) {
+              entry.mastered = !entry.mastered;
+              track("vocabulary_mastery_toggled", {
+                route: state.route,
+                word: entry.word,
+                mastered: entry.mastered,
+              });
+              commit();
+              return true;
+            }
+          }
+        }
+      }
+
+      return false;
+    },
     importTemplateBlock(raw) {
       const parsed = parseTemplateBlock(raw);
       state.importPreview = parsed;
+      track("import_preview_generated", {
+        route: state.route,
+        module_type: parsed.type,
+        module_mode: parsed.mode,
+        item_count: parsed.items?.length || parsed.vocabulary?.length || 0,
+      });
       return parsed;
     },
     applyImportPreview() {
       if (!state.importPreview) return;
 
       const folder = getCurrentFolder();
+      const preview = state.importPreview;
 
-      if (state.importPreview.type === "vocabulary") {
+      if (preview.type === "vocabulary") {
         const existingWords = new Set(state.flashcards.map((card) => card.word.toLowerCase()));
-        const toAdd = (state.importPreview.vocabulary || []).filter(
+        const toAdd = (preview.vocabulary || []).filter(
           (item) => !existingWords.has(item.word.toLowerCase())
         );
         state.flashcards.push(...toAdd);
       } else {
         if (folder) {
-          folder.modules.push(state.importPreview);
+          folder.modules.push(preview);
         }
       }
 
       state.importPreview = null;
+      track("import_applied", {
+        route: state.route,
+        project_id: state.currentProjectId,
+        folder_id: folder?.id || state.currentFolderId,
+        module_id: preview.id,
+        module_type: preview.type,
+        module_mode: preview.mode,
+        item_count: preview.items?.length || preview.vocabulary?.length || 0,
+      });
       commit();
     },
     refreshCheckin() {
+      const previous = state.checkin?.isCheckedIn;
       state.checkin = evaluateCheckinStatus(state.studyLog);
+      if (!previous && state.checkin?.isCheckedIn) {
+        track("checkin_completed", {
+          route: state.route,
+          project_id: state.currentProjectId,
+          completed_actions: state.checkin.completedActions.length,
+        });
+      }
     },
     getHighlightedReading(moduleId) {
       const module = getModuleById(moduleId);
@@ -3124,20 +3846,16 @@ function createStore(initialState, options = {}) {
   }
 
   function getModuleById(moduleId) {
-    for (const project of state.projects) {
-      for (const folder of project.folders || []) {
-        const found = folder.modules.find((module) => module.id === moduleId);
-        if (found) return found;
-      }
-    }
-    return null;
+    return getModuleContext(moduleId).module;
   }
 
   /** Shared answer-submission pipeline for reading & listening. */
   function submitAnswers(moduleId, answers, logType) {
-    const module = getModuleById(moduleId);
+    const { project, folder, module } = getModuleContext(moduleId);
+    if (!module) return;
     const sourceText = module.transcript || module.passage || "";
     const mistakes = [];
+    let correctCount = 0;
 
     module.items = module.items.map((item) => {
       const userAnswer = (answers[item.id] || "").trim().toLowerCase();
@@ -3159,6 +3877,8 @@ function createStore(initialState, options = {}) {
           status: "unmastered",
           sourceSentence: sourceText,
         });
+      } else {
+        correctCount += 1;
       }
 
       return { ...item, userAnswer, isCorrect, checkedAt: new Date().toISOString() };
@@ -3187,7 +3907,35 @@ function createStore(initialState, options = {}) {
     });
 
     actions.refreshCheckin();
+    track(logType === "reading-practice" ? "reading_submitted" : "listening_submitted", {
+      route: state.route,
+      project_id: project?.id || state.currentProjectId,
+      folder_id: folder?.id || state.currentFolderId,
+      module_id: module.id,
+      module_type: module.type,
+      module_mode: module.mode,
+      total_items: module.items.length,
+      correct_count: correctCount,
+      mistake_count: mistakes.length,
+      accuracy: module.items.length ? Number((correctCount / module.items.length).toFixed(2)) : 0,
+    });
     commit();
+  }
+
+  function estimateTranslationMatch(userText = "", refText = "") {
+    if (!userText.trim()) return 0;
+    const stopWords = new Set(["the","and","for","not","are","how","can","that","this","with","when","from","its","has","but","was","now","all"]);
+    const refKeywords = [...new Set(
+      refText
+        .toLowerCase()
+        .replace(/[.,;!?()"']/g, " ")
+        .split(/\s+/)
+        .filter((word) => word.length >= 3 && !stopWords.has(word))
+    )];
+    if (refKeywords.length === 0) return 0;
+    const userLower = userText.toLowerCase();
+    const matched = refKeywords.filter((keyword) => userLower.includes(keyword));
+    return Math.round((matched.length / refKeywords.length) * 100);
   }
 
   actions.setUserName = function (name) {
@@ -3218,6 +3966,7 @@ function createStore(initialState, options = {}) {
     getModuleById(moduleId) {
       return getModuleById(moduleId);
     },
+    track,
     actions,
   };
 }
@@ -3357,6 +4106,12 @@ const iconSet = {
       <path d="M5.4 18.1c1.5.7 3.9 1.2 6.6 1.2s5.1-.4 6.6-1.2" stroke-linecap="round" />
     </svg>
   `,
+  translation: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5.2 6.2h8.5M9.4 4.7v1.5M7.8 6.2c.4 2.8 1.8 5 4.2 6.5M5.8 12.7c1.5-.7 3-2 4.1-3.8" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M15.1 8.5 19.3 19M13.4 16.1h5.4" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  `,
   reading: `
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M5.5 6.5c1.8-.8 4.2-1.2 6.5-1.2s4.7.3 6.5 1.2v10.8c-1.8-.8-4.2-1.2-6.5-1.2s-4.7.3-6.5 1.2z" stroke-linecap="round" stroke-linejoin="round" />
@@ -3418,6 +4173,16 @@ const iconSet = {
       <path d="M12 4.2v.8M12 19v.8M4.2 12h.8M19 12h.8M6.5 6.5l.6.5M16.9 16.9l.6.5M6.5 17.5l.6-.5M16.9 7.1l.6-.5" stroke-linecap="round" />
     </svg>
   `,
+  menu: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5.5 7h13M5.5 12h13M5.5 17h13" stroke-linecap="round" />
+    </svg>
+  `,
+  close: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m7 7 10 10M17 7 7 17" stroke-linecap="round" />
+    </svg>
+  `,
   arrowRight: `
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M9 6.5 14.8 12 9 17.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -3475,25 +4240,51 @@ function icon(name) {
 
 { iconSet };
 
+const APP_META = {
+  appName: "鱼骨头英语复习系统",
+  slogan: "把英语啃的只剩鱼骨头。",
+  version: "1.2.0",
+  dataVersion: 2,
+  desktopTarget: "tauri",
+};
 
-function navItem(route, label, iconName) {
+
+function navItem(route, label, iconName, activeRoute) {
   return `
-    <button data-route="${route}" class="nav-pill">
+    <button data-route="${route}" class="nav-pill ${activeRoute === route ? "is-active" : ""}" type="button">
       ${icon(iconName)}
       <span>${label}</span>
     </button>
   `;
 }
 
+function navGroup(label, iconName, routes, activeRoute) {
+  const isOpen = routes.some(({ route }) => route === activeRoute);
+  return `
+    <details class="nav-group" ${isOpen ? "open" : ""}>
+      <summary>
+        ${icon(iconName)}
+        <span>${label}</span>
+        <span class="nav-group-arrow">⌄</span>
+      </summary>
+      <div class="nav-sublist">
+        ${routes.map(({ route, label, iconName }) => navItem(route, label, iconName, activeRoute)).join("")}
+      </div>
+    </details>
+  `;
+}
+
 function createAppShell(store, navigate) {
   const state = store.getState();
   const project = state.projects.find((item) => item.id === state.currentProjectId) ?? state.projects[0];
+  const activeRoute = state.route || "dashboard";
 
   const shell = document.createElement("div");
   shell.className = "app-shell";
   shell.innerHTML = `
     <aside class="sidebar">
       <div class="paper-noise"></div>
+      <button class="sidebar-close" type="button" aria-label="关闭导航菜单">${icon("close")}</button>
       <div class="brand-block">
         <p class="brand-kicker">REVIEW ATELIER</p>
         <h1>鱼骨头英语复习系统</h1>
@@ -3521,19 +4312,23 @@ function createAppShell(store, navigate) {
         </div>
       </div>
       <nav class="nav-list">
-        ${navItem("dashboard", "首页", "dashboard")}
-        ${navItem("project", "项目总览", "project")}
-        ${navItem("import", "导入中心", "import")}
-        ${navItem("listening", "听力练习", "listening")}
-        ${navItem("reading", "阅读练习", "reading")}
-        ${navItem("translation", "翻译练习", "import")}
-        ${navItem("vocabulary", "词汇表", "flashcards")}
-        ${navItem("mistakes", "错题笔记", "mistakes")}
-        ${navItem("flashcards", "闪卡词库", "flashcards")}
-        ${navItem("checkin", "打卡日历", "checkin")}
-        ${navItem("profile", "个人中心", "user")}
-        ${navItem("settings", "设置", "gear")}
-        ${navItem("obsidian", "Obsidian", "obsidian")}
+        ${navItem("dashboard", "首页", "dashboard", activeRoute)}
+        ${navItem("project", "项目总览", "project", activeRoute)}
+        ${navItem("import", "导入中心", "import", activeRoute)}
+        ${navItem("listening", "听力练习", "listening", activeRoute)}
+        ${navItem("reading", "阅读练习", "reading", activeRoute)}
+        ${navItem("translation", "翻译练习", "translation", activeRoute)}
+        ${navGroup("复习中心", "flashcards", [
+          { route: "vocabulary", label: "词汇表", iconName: "flashcards" },
+          { route: "mistakes", label: "错题笔记", iconName: "mistakes" },
+          { route: "flashcards", label: "闪卡词库", iconName: "flashcards" },
+        ], activeRoute)}
+        ${navGroup("个人中心", "user", [
+          { route: "profile", label: "个人资料", iconName: "user" },
+          { route: "checkin", label: "打卡日历", iconName: "checkin" },
+          { route: "settings", label: "设置", iconName: "gear" },
+          { route: "obsidian", label: "Obsidian", iconName: "obsidian" },
+        ], activeRoute)}
       </nav>
       <div class="project-chip">
         ${icon("pin")}
@@ -3542,10 +4337,17 @@ function createAppShell(store, navigate) {
           <strong>${project?.title ?? "未选择项目"}</strong>
         </div>
       </div>
-      <div class="version-badge">v1.0.0</div>
+      <div class="app-info-card">
+        <div class="app-info-card-title">
+          <span>鱼骨头英语复习</span>
+          <strong>桌面版 v${APP_META.version}</strong>
+        </div>
+        <p>你的学习记录仅保存在这台设备上。</p>
+      </div>
     </aside>
     <main class="main-panel">
       <header class="topbar">
+        <button class="sidebar-toggle" type="button" aria-label="打开导航菜单" aria-expanded="false">${icon("menu")}</button>
         <div>
           <h2>${project?.title ?? "英语复习"}</h2>
         </div>
@@ -3562,6 +4364,16 @@ function createAppShell(store, navigate) {
   shell.querySelectorAll("[data-route]").forEach((button) => {
     button.addEventListener("click", () => navigate(button.dataset.route));
   });
+
+  const closeSidebar = () => {
+    shell.classList.remove("is-sidebar-open");
+    shell.querySelector(".sidebar-toggle")?.setAttribute("aria-expanded", "false");
+  };
+  shell.querySelector(".sidebar-toggle")?.addEventListener("click", () => {
+    const isOpen = shell.classList.toggle("is-sidebar-open");
+    shell.querySelector(".sidebar-toggle")?.setAttribute("aria-expanded", String(isOpen));
+  });
+  shell.querySelector(".sidebar-close")?.addEventListener("click", closeSidebar);
 
   return shell;
 }
@@ -3803,23 +4615,60 @@ function moduleIcon(type) {
   return `<span class="module-spot-icon">${icon(type)}</span>`;
 }
 
+function formatDay(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function getDashboardStats(studyLog, mistakes, flashcards) {
+  const studyDays = new Set((studyLog || []).map((entry) => entry.date.slice(0, 10)));
+  const cursor = new Date();
+  let streak = 0;
+  while (studyDays.has(formatDay(cursor))) {
+    streak += 1;
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+
+  const weekStart = new Date();
+  weekStart.setHours(0, 0, 0, 0);
+  weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
+  const weeklyActions = (studyLog || []).filter((entry) => new Date(entry.date) >= weekStart).length;
+  const pendingCards = (flashcards || []).filter((card) => !card.mastered).length;
+
+  return { streak, weeklyActions, pendingCards, pendingMistakes: mistakes?.length || 0 };
+}
+
+function getTodayFocus(stats, state) {
+  if (!state.checkin?.isCheckedIn) {
+    return { route: "reading", title: "先完成一项练习，点亮今天", copy: "从阅读、听力或翻译里任选一个开始，完成后会自动打卡。", action: "开始练习" };
+  }
+  if (stats.pendingMistakes > 0) {
+    return { route: "mistakes", title: `回顾 ${stats.pendingMistakes} 条错题`, copy: "把今天遇到的问题变成下一次更稳的答案。", action: "查看错题" };
+  }
+  if (stats.pendingCards > 0) {
+    return { route: "flashcards", title: `巩固 ${stats.pendingCards} 张闪卡`, copy: "用几分钟复习核心词，让记忆更牢。", action: "去复习闪卡" };
+  }
+  return { route: "project", title: "今天的任务已完成", copy: "可以继续挑战下一套练习，或导入新的复习内容。", action: "继续学习" };
+}
+
 function renderDashboard(store, navigate) {
   const state = store.getState();
   const project = state.projects.find((item) => item.id === state.currentProjectId) ?? state.projects[0];
   const fishSteps = state.settings?.fishSteps || [];
   const fishProgress = fishSteps.length;
+  const stats = getDashboardStats(state.studyLog, state.mistakes, state.flashcards);
+  const focus = getTodayFocus(stats, state);
 
   const el = document.createElement("div");
   el.className = "page-grid";
   el.innerHTML = `
     <section class="hero-panel paper-panel">
       <div class="hero-copy">
-        <p class="label">Portfolio-inspired study hub</p>
-        <h3>把英语原题、精听、错题、闪卡和打卡，整理成一套可持续迭代的复习作品。</h3>
-        <p>第一版先跑通项目中心、模板导入、阅读练习、错题联动、闪卡与打卡。听力精听层和更完整的原题解析，后续继续接入。</p>
+        <p class="label">今天的英语复习</p>
+        <h3>把每一次练习，变成看得见的进步。</h3>
+        <p>从听力、阅读或翻译开始。做错的题会自动回收到错题笔记和闪卡，让下一次练习更有把握。</p>
         <div class="hero-actions">
-          <button class="primary-btn" data-action="open-project">继续当前项目</button>
-          <button class="secondary-btn" data-action="open-import">导入新内容</button>
+          <button class="primary-btn" data-action="open-project">继续学习</button>
+          <button class="secondary-btn" data-action="open-import">导入内容</button>
         </div>
       </div>
       <div class="hero-illustration" aria-hidden="true">
@@ -3851,6 +4700,23 @@ function renderDashboard(store, navigate) {
         </div>
       </div>
     </section>
+    <section class="study-path" aria-label="学习流程">
+      <button type="button" data-action="open-import"><span>01</span>导入内容</button>
+      <i aria-hidden="true"></i>
+      <button type="button" data-action="open-reading"><span>02</span>开始练习</button>
+      <i aria-hidden="true"></i>
+      <button type="button" data-action="open-mistakes"><span>03</span>错题回收</button>
+      <i aria-hidden="true"></i>
+      <button type="button" data-action="open-flashcards"><span>04</span>闪卡巩固</button>
+    </section>
+    <section class="today-focus" aria-label="今日建议">
+      <div>
+        <p class="label">今日建议</p>
+        <h4>${focus.title}</h4>
+        <p>${focus.copy}</p>
+      </div>
+      <button class="primary-btn" type="button" data-action="open-focus">${focus.action}</button>
+    </section>
     ${renderFishProgress(store, navigate)}
     <section class="panel-row">
       <article class="paper-panel stat-panel">
@@ -3859,14 +4725,19 @@ function renderDashboard(store, navigate) {
         <p>${project.description}</p>
       </article>
       <article class="paper-panel stat-panel">
-        <p class="label">今日动作</p>
-        <h4>${state.checkin.completedActions.length} 次</h4>
-        <p>完成任意有效学习动作，即可自动打卡。</p>
+        <p class="label">连续打卡</p>
+        <h4>${stats.streak} 天</h4>
+        <p>${state.checkin.isCheckedIn ? "今天已经点亮，继续保持这个节奏。" : "完成一项练习，就能点亮今天。"}</p>
       </article>
       <article class="paper-panel stat-panel">
-        <p class="label">错题池</p>
-        <h4>${state.mistakes.length} 条</h4>
-        <p>支持笔记、再练、加入闪卡与掌握状态追踪。</p>
+        <p class="label">本周完成</p>
+        <h4>${stats.weeklyActions} 次</h4>
+        <p>每一次提交、核对与闪卡复习都会记录在这里。</p>
+      </article>
+      <article class="paper-panel stat-panel">
+        <p class="label">待巩固内容</p>
+        <h4>${stats.pendingMistakes + stats.pendingCards} 项</h4>
+        <p>${stats.pendingMistakes} 条错题，${stats.pendingCards} 张待复习闪卡。</p>
       </article>
     </section>
     <section class="panel-row">
@@ -3892,7 +4763,11 @@ function renderDashboard(store, navigate) {
   `;
 
   el.querySelector('[data-action="open-project"]').addEventListener("click", () => navigate("project"));
-  el.querySelector('[data-action="open-import"]').addEventListener("click", () => navigate("import"));
+  el.querySelectorAll('[data-action="open-import"]').forEach((button) => button.addEventListener("click", () => navigate("import")));
+  el.querySelector('[data-action="open-reading"]').addEventListener("click", () => navigate("reading"));
+  el.querySelector('[data-action="open-mistakes"]').addEventListener("click", () => navigate("mistakes"));
+  el.querySelector('[data-action="open-flashcards"]').addEventListener("click", () => navigate("flashcards"));
+  el.querySelector('[data-action="open-focus"]').addEventListener("click", () => navigate(focus.route));
 
   bindFishStepper(el, navigate);
 
@@ -4189,42 +5064,81 @@ const translationTemplate = `[模块类型] translation
 function renderImportCenter(store) {
   const state = store.getState();
   const folder = store.getCurrentFolder();
+  const aiReady = Boolean(state.settings?.aiApiKey);
+  const aiTemplateEnabled = state.settings?.aiTemplateEnabled !== false;
   const el = document.createElement("div");
   el.className = "stack-layout";
 
   el.innerHTML = `
     <section class="paper-panel import-layout">
       <div>
-        <p class="label">Template-first import</p>
-        <h3>模板化粘贴，一键生成练习模块</h3>
-        <p>支持阅读、精听填空、听力原题、词汇、翻译模板。导入内容将加入：<strong>${folder ? folder.title : "未选择试卷"}</strong>。<br/>听力类型可上传音频文件（MP3/WAV），导入后自动绑定。</p>
+        <p class="label">导入复习内容</p>
+        <h3>把你的资料整理成可练习的内容</h3>
+        <p>支持阅读、精听、听力原题、词汇和翻译。内容会加入：<strong>${folder ? folder.title : "当前试卷"}</strong>。<br/>听力练习可同时上传 MP3 或 WAV 音频。</p>
       </div>
-      <div class="import-tabs" data-tabs>
-        <button class="import-tab active" data-tab="reading">📖 阅读填空</button>
-        <button class="import-tab" data-tab="readingComp">📖 阅读原题</button>
-        <button class="import-tab" data-tab="listening">🎧 精听填空</button>
-        <button class="import-tab" data-tab="listeningComp">🔊 听力原题</button>
-        <button class="import-tab" data-tab="vocabulary">📝 词汇表</button>
-        <button class="import-tab" data-tab="translation">🌐 翻译练习</button>
-      </div>
-      <div class="import-duo">
-        <textarea class="editor-panel" data-template-input>${templates.reading}</textarea>
-        <div class="preview-panel" data-preview-panel>
-          <p class="preview-empty">点击"生成预览"后，这里会显示将被导入的模块内容。</p>
+      <div class="import-section import-section-ai">
+        <div class="import-section-head">
+          <div>
+            <p class="label">AI Import</p>
+            <h4>AI 导入</h4>
+            <p>${aiTemplateEnabled ? "把原题、题干或笔记整理成可预览的练习草稿。" : "你已在设置中关闭 AI 题目整理功能。"}</p>
+          </div>
+          <span class="sketch-badge">${aiReady ? "AI 已可配置" : "待配置 API"}</span>
+        </div>
+        <div class="import-ai-grid">
+          <div class="preview-panel import-ai-card">
+            <p class="label">原题文本 → 练习草稿</p>
+            <h4>让 AI 帮你整理练习内容</h4>
+            <p>粘贴原题文本后，AI 可以识别题型并生成一份可检查、可修改的练习草稿。</p>
+            <div class="hero-actions">
+              <button class="secondary-btn" data-action="open-ai-template">${aiReady && aiTemplateEnabled ? "使用 AI 整理题目" : "去设置里启用 AI"}</button>
+            </div>
+          </div>
+          <div class="preview-panel import-ai-card import-ai-card-note">
+            <p class="label">整理步骤</p>
+            <ul class="preview-list">
+              <li>粘贴原题文本 / 听力原文 / 词汇笔记</li>
+              <li>自动识别为阅读、听力、词汇或翻译模块</li>
+              <li>生成练习草稿，再由你检查并确认导入</li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="import-audio-row" data-import-audio>
-        <label class="import-audio-label">
-          <span>🎵 听力音频<span style="color:var(--accent);font-weight:600">（精听/听力原题必选）</span></span>
-          <input type="file" accept="audio/mp3,audio/wav,audio/mpeg,audio/wav,.mp3,.wav" data-audio-file hidden />
-          <span class="import-audio-btn">📁 选择音频文件</span>
-        </label>
-        <span class="import-audio-name" data-audio-name>未选择文件</span>
-        <span class="import-audio-hint">点击上方按钮选择 MP3 或 WAV 文件，选择后下方会显示文件名 ✓。支持任意长度音频。</span>
-      </div>
-      <div class="hero-actions">
-        <button class="primary-btn" data-action="preview">生成预览</button>
-        <button class="secondary-btn" data-action="apply">加入当前项目</button>
+      <div class="import-section import-section-manual">
+        <div class="import-section-head">
+          <div>
+            <p class="label">Manual Import</p>
+            <h4>手动导入</h4>
+            <p>选择题型，粘贴内容，预览后确认导入。你可以随时修改后再继续。</p>
+          </div>
+        </div>
+        <div class="import-tabs" data-tabs>
+          <button class="import-tab active" data-tab="reading">📖 阅读填空</button>
+          <button class="import-tab" data-tab="readingComp">📖 阅读原题</button>
+          <button class="import-tab" data-tab="listening">🎧 精听填空</button>
+          <button class="import-tab" data-tab="listeningComp">🔊 听力原题</button>
+          <button class="import-tab" data-tab="vocabulary">📝 词汇表</button>
+          <button class="import-tab" data-tab="translation">🌐 翻译练习</button>
+        </div>
+        <div class="import-duo">
+          <textarea class="editor-panel" data-template-input>${templates.reading}</textarea>
+          <div class="preview-panel" data-preview-panel>
+            <p class="preview-empty">点击“生成预览”后，这里会显示将被导入的模块内容。</p>
+          </div>
+        </div>
+        <div class="import-audio-row" data-import-audio>
+          <label class="import-audio-label">
+            <span>🎵 听力音频<span style="color:var(--accent);font-weight:600">（精听/听力原题必选）</span></span>
+            <input type="file" accept="audio/mp3,audio/wav,audio/mpeg,audio/wav,.mp3,.wav" data-audio-file hidden />
+            <span class="import-audio-btn">📁 选择音频文件</span>
+          </label>
+          <span class="import-audio-name" data-audio-name>未选择文件</span>
+          <span class="import-audio-hint">点击上方按钮选择 MP3 或 WAV 文件，选择后下方会显示文件名 ✓。支持任意长度音频。</span>
+        </div>
+        <div class="hero-actions">
+          <button class="primary-btn" data-action="preview">生成预览</button>
+          <button class="secondary-btn" data-action="apply">加入当前项目</button>
+        </div>
       </div>
     </section>
   `;
@@ -4254,6 +5168,12 @@ function renderImportCenter(store) {
       const sizeMB = (file.size / 1024 / 1024).toFixed(1);
       audioNameEl.textContent = `✅ ${file.name} (${sizeMB} MB)`;
       audioRow.classList.add("has-audio");
+      store.track("import_audio_attached", {
+        route: store.getState().route,
+        file_name: file.name,
+        file_type: file.type || "unknown",
+        file_size_mb: Number(sizeMB),
+      });
     };
     reader.onerror = () => {
       audioNameEl.textContent = "❌ 文件读取失败，请重试";
@@ -4269,6 +5189,10 @@ function renderImportCenter(store) {
       tab.classList.add("active");
 
       const tabKey = tab.dataset.tab;
+      store.track("import_template_switched", {
+        route: store.getState().route,
+        template_key: tabKey,
+      });
       if (tabKey === "listening") {
         input.value = templates.listening;
       } else if (tabKey === "readingComp") {
@@ -4329,6 +5253,20 @@ function renderImportCenter(store) {
   el.querySelector('[data-action="preview"]').addEventListener("click", () => {
     store.actions.importTemplateBlock(input.value);
     renderPreview();
+  });
+
+  el.querySelector('[data-action="open-ai-template"]')?.addEventListener("click", () => {
+    store.track("ai_template_entry_clicked", {
+      route: store.getState().route,
+      ai_ready: aiReady,
+      enabled: aiTemplateEnabled,
+    });
+    if (!aiTemplateEnabled || !aiReady) {
+      alert("先在设置中填写 AI 服务信息，之后就能使用 AI 整理题目。");
+      navigate("settings");
+      return;
+    }
+    alert("AI 题目整理功能正在连接服务。配置完成后，这里会直接生成可修改的练习草稿。");
   });
 
   el.querySelector('[data-action="apply"]').addEventListener("click", () => {
@@ -5476,8 +6414,6 @@ function renderProfile(store, navigate) {
   return el;
 }
 
-
-
 function extractKeywords(text) {
   // Extract meaningful English words (3+ chars, not just stopwords)
   const stopWords = new Set(["the","and","for","not","are","how","can","that","this","with","when","from","its","has","but","was","now","all"]);
@@ -5509,6 +6445,8 @@ function highlightMatches(userText, refText) {
 function renderTranslation(store, navigate) {
   store.actions.markFishStep("translation");
   const state = store.getState();
+  const aiReady = Boolean(state.settings?.aiApiKey);
+  const aiTranslationEnabled = state.settings?.aiTranslationEnabled !== false;
   const folder = store.getCurrentFolder();
   const transModules = folder ? folder.modules.filter((item) => item.type === "translation") : [];
 
@@ -5595,6 +6533,15 @@ function renderTranslation(store, navigate) {
           <h3>${module.title}</h3>
           <p>${module.summary}</p>
         </div>
+        <div class="sketch-badge">${aiTranslationEnabled ? (aiReady ? "AI 翻译辅助已准备" : "填写 AI 服务信息后可使用") : "AI 翻译辅助已关闭"}</div>
+      </div>
+      <div class="preview-panel">
+        <p class="label">AI 翻译辅助</p>
+        <h4>翻译润色 / 表达建议 / 句子拆解</h4>
+        <p>${aiTranslationEnabled ? "配置完成后，AI 可以润色你的答案、解释与参考译文的差异，并提炼值得记忆的表达。" : "你已在设置中关闭 AI 翻译辅助。"}</p>
+        <div class="hero-actions">
+          <button class="secondary-btn" data-action="ai-polish">${aiReady && aiTranslationEnabled ? "使用 AI 翻译辅助" : "去设置里启用 AI"}</button>
+        </div>
       </div>
       <div class="translation-list">
         ${itemsHTML}
@@ -5617,18 +6564,10 @@ function renderTranslation(store, navigate) {
     const saveBtn = el.querySelector('[data-action="save"]');
     if (saveBtn) {
       saveBtn.addEventListener("click", () => {
-        el.querySelectorAll("[data-item-id]").forEach((input) => {
-          const item = module.items.find((i) => i.id === input.dataset.itemId);
-          if (item) item.userAnswer = input.value;
-        });
-        state.studyLog.unshift({
-          id: `log-${Date.now()}`,
-          type: "translation",
-          projectId: state.currentProjectId,
-          date: new Date().toISOString(),
-          title: module.title,
-        });
-        state.checkin = evaluateCheckinStatus(state.studyLog);
+        const answers = Object.fromEntries(
+          [...el.querySelectorAll("[data-item-id]")].map((input) => [input.dataset.itemId, input.value])
+        );
+        store.actions.saveTranslationDraft(module.id, answers);
         navigate("translation");
       });
     }
@@ -5636,21 +6575,10 @@ function renderTranslation(store, navigate) {
     const checkBtn = el.querySelector('[data-action="check"]');
     if (checkBtn) {
       checkBtn.addEventListener("click", () => {
-        el.querySelectorAll("[data-item-id]").forEach((input) => {
-          const item = module.items.find((i) => i.id === input.dataset.itemId);
-          if (item) item.userAnswer = input.value;
-        });
-        state.studyLog.unshift({
-          id: `log-${Date.now()}`,
-          type: "translation",
-          projectId: state.currentProjectId,
-          date: new Date().toISOString(),
-          title: module.title,
-        });
-        module.items.forEach((item) => {
-          item.isCorrect = computeSimilarity(item.userAnswer, item.reference) >= 50;
-        });
-        state.checkin = evaluateCheckinStatus(state.studyLog);
+        const answers = Object.fromEntries(
+          [...el.querySelectorAll("[data-item-id]")].map((input) => [input.dataset.itemId, input.value])
+        );
+        store.actions.checkTranslationAnswers(module.id, answers, 50);
         navigate("translation", { checked: true });
       });
     }
@@ -5658,7 +6586,7 @@ function renderTranslation(store, navigate) {
     const resetBtn = el.querySelector('[data-action="reset"]');
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
-        module.items.forEach((item) => (item.userAnswer = ""));
+        store.actions.resetTranslationAnswers(module.id);
         navigate("translation");
       });
     }
@@ -5666,11 +6594,26 @@ function renderTranslation(store, navigate) {
     const resetBtn = el.querySelector('[data-action="reset"]');
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
-        module.items.forEach((item) => (item.userAnswer = ""));
+        store.actions.resetTranslationAnswers(module.id);
         navigate("translation", { checked: false });
       });
     }
   }
+
+  el.querySelector('[data-action="ai-polish"]')?.addEventListener("click", () => {
+    store.track("ai_translation_entry_clicked", {
+      route: state.route,
+      ai_ready: aiReady,
+      enabled: aiTranslationEnabled,
+      module_id: module.id,
+    });
+    if (!aiTranslationEnabled || !aiReady) {
+      alert("先在设置中填写 AI 服务信息，之后就能使用翻译润色和讲解。");
+      navigate("settings");
+      return;
+    }
+    alert("AI 翻译辅助正在连接服务。配置完成后，这里会直接为你的翻译提供润色和讲解。");
+  });
 
   return el;
 }
@@ -5733,20 +6676,13 @@ function renderVocabulary(store, navigate) {
   `;
 
   el.querySelector('[data-action="add-all-flashcards"]').addEventListener("click", () => {
-    const state = store.getState();
-    const existingWords = new Set(state.flashcards.map((c) => c.word.toLowerCase()));
-    allWords.forEach((w) => {
-      if (!existingWords.has(w.word.toLowerCase())) {
-        state.flashcards.push({ ...w, id: `flash-${w.word.toLowerCase()}` });
-      }
-    });
+    store.actions.addVocabularyToFlashcards(allWords);
     navigate("flashcards");
   });
 
   el.querySelectorAll(".vocab-toggle").forEach((span) => {
     span.addEventListener("click", () => {
-      const word = allWords.find((w) => w.word === span.dataset.word);
-      if (word) word.mastered = !word.mastered;
+      store.actions.toggleVocabularyMastered(span.dataset.word);
       navigate("vocabulary");
     });
   });
@@ -5766,6 +6702,11 @@ const COLOR_THEMES = [
   { value: "forest", label: "森林绿", desc: "自然清新", color: "#4a7c52" },
   { value: "ocean", label: "海洋蓝", desc: "冷静专注", color: "#3d6d99" },
   { value: "sakura", label: "樱花粉", desc: "温柔暖调", color: "#b85a6a" },
+];
+
+const AI_PROVIDERS = [
+  { value: "dashscope", label: "阿里云百炼", desc: "推荐用于翻译和题目整理" },
+  { value: "custom", label: "自定义平台", desc: "使用你自己的 AI 服务" },
 ];
 
 function renderSection(title, content) {
@@ -5858,6 +6799,64 @@ function renderSettings(store, navigate) {
         </div>
       `)}
 
+      ${renderSection("✨ AI 学习辅助", `
+        <div class="settings-info">
+          <span class="settings-info-label">状态</span>
+          <span class="settings-info-desc">配置 AI 服务后，可使用翻译辅助和题目整理功能。</span>
+        </div>
+        <div class="settings-option-group theme-group" style="margin-top:12px">
+          ${AI_PROVIDERS.map((provider) => `
+            <label class="settings-option theme-option ${(settings.aiProvider || "dashscope") === provider.value ? "active" : ""}" data-setting="aiProvider" data-value="${provider.value}">
+              <span class="settings-option-label">${provider.label}</span>
+              <span class="settings-option-desc">${provider.desc}</span>
+            </label>
+          `).join("")}
+        </div>
+        <div class="settings-row" style="margin-top:14px">
+          <div class="settings-info">
+            <span class="settings-info-label">API 地址</span>
+            <span class="settings-info-desc">使用自定义平台时填写接口地址；阿里云百炼可保留为空。</span>
+          </div>
+        </div>
+        <div class="settings-storage-key-row">
+          <input type="text" class="settings-endpoint-input" value="${settings.aiEndpoint || ""}" placeholder="例如：https://dashscope.aliyuncs.com/compatible-mode/v1" />
+          <button class="secondary-btn" data-action="save-endpoint">保存地址</button>
+        </div>
+        <div class="settings-row" style="margin-top:14px">
+          <div class="settings-info">
+            <span class="settings-info-label">API Key</span>
+            <span class="settings-info-desc">仅保存在当前浏览器，用于你自己的 AI 功能调用。</span>
+          </div>
+        </div>
+        <div class="settings-storage-key-row">
+          <input type="password" class="settings-api-key-input" value="${settings.aiApiKey || ""}" placeholder="输入你的 API Key" />
+          <button class="secondary-btn" data-action="save-api-key">保存 Key</button>
+        </div>
+        <div class="settings-toggles" style="margin-top:14px">
+          <label class="settings-toggle">
+            <div>
+              <span class="settings-toggle-label">启用 AI 翻译辅助</span>
+              <span class="settings-toggle-desc">用于翻译润色、参考表达和句子拆解。</span>
+            </div>
+            <input type="checkbox" data-setting="aiTranslationEnabled" ${settings.aiTranslationEnabled !== false ? "checked" : ""} class="settings-switch" />
+          </label>
+          <label class="settings-toggle">
+            <div>
+              <span class="settings-toggle-label">显示 AI 翻译浮窗按钮</span>
+              <span class="settings-toggle-desc">选中页面生词后，可随时打开翻译小窗。</span>
+            </div>
+            <input type="checkbox" data-setting="aiFloatingTranslateEnabled" ${settings.aiFloatingTranslateEnabled !== false ? "checked" : ""} class="settings-switch" />
+          </label>
+          <label class="settings-toggle">
+            <div>
+              <span class="settings-toggle-label">启用 AI 题目整理</span>
+              <span class="settings-toggle-desc">把原题文本整理成可检查、可修改的练习草稿。</span>
+            </div>
+            <input type="checkbox" data-setting="aiTemplateEnabled" ${settings.aiTemplateEnabled !== false ? "checked" : ""} class="settings-switch" />
+          </label>
+        </div>
+      `)}
+
       ${renderSection("🔔 提醒设置", `
         <div class="settings-toggles">
           <label class="settings-toggle">
@@ -5874,16 +6873,6 @@ function renderSettings(store, navigate) {
         </div>
       `)}
 
-      ${renderSection("ℹ️ 关于", `
-        <div class="settings-info">
-          <span class="settings-info-label">版本</span>
-          <span class="settings-info-value">v1.0.0</span>
-        </div>
-        <div class="settings-info">
-          <span class="settings-info-label">项目</span>
-          <span class="settings-info-value">鱼骨头英语复习系统</span>
-        </div>
-      `)}
     </section>
   `;
 
@@ -5898,10 +6887,24 @@ function renderSettings(store, navigate) {
     });
   });
 
+  el.querySelectorAll("[data-setting='aiProvider']").forEach((label) => {
+    label.addEventListener("click", () => {
+      store.actions.updateSettings({ aiProvider: label.dataset.value });
+      store.track("ai_provider_selected", { provider: label.dataset.value, route: state.route });
+      navigate("settings");
+    });
+  });
+
   // Toggle switches
   el.querySelectorAll(".settings-switch").forEach((checkbox) => {
     checkbox.addEventListener("change", () => {
       store.actions.updateSettings({ [checkbox.dataset.setting]: checkbox.checked });
+      if (checkbox.dataset.setting === "aiFloatingTranslateEnabled") {
+        store.track("ai_floating_toggle_changed", {
+          enabled: checkbox.checked,
+          route: state.route,
+        });
+      }
     });
   });
 
@@ -5912,6 +6915,24 @@ function renderSettings(store, navigate) {
       store.actions.updateSettings({ reminderTime: timeInput.value });
     });
   }
+
+  el.querySelector('[data-action="save-endpoint"]')?.addEventListener("click", () => {
+    const value = el.querySelector(".settings-endpoint-input")?.value?.trim() || "";
+    store.actions.updateSettings({ aiEndpoint: value });
+    store.track("ai_endpoint_saved", { has_value: Boolean(value), route: state.route });
+    alert("AI 接口地址已保存到当前浏览器。");
+  });
+
+  el.querySelector('[data-action="save-api-key"]')?.addEventListener("click", () => {
+    const value = el.querySelector(".settings-api-key-input")?.value?.trim() || "";
+    store.actions.updateSettings({ aiApiKey: value });
+    store.track("ai_api_key_saved", {
+      provider: store.getState().settings?.aiProvider || "dashscope",
+      has_value: Boolean(value),
+      route: state.route,
+    });
+    alert(value ? "AI Key 已保存到当前浏览器。" : "已清空 AI Key。");
+  });
 
   // Export
   el.querySelector('[data-action="export"]')?.addEventListener("click", () => {
@@ -6304,6 +7325,12 @@ const seedState = {
     dailyReminder: false,
     reminderTime: "20:00",
     fishSteps: [],
+    aiProvider: "dashscope",
+    aiEndpoint: "",
+    aiApiKey: "",
+    aiTranslationEnabled: true,
+    aiTemplateEnabled: true,
+    aiFloatingTranslateEnabled: true,
   },
   projectKeywords: ["satisfaction", "empathy", "adversity", "regret", "liberation"],
   cetVocabulary: [
@@ -6500,6 +7527,433 @@ const seedState = {
   },
 };
 
+const ANALYTICS_STORAGE_PREFIX = "review-system:analytics-user-id:";
+const POSTHOG_TOKEN = "phc_nN7VnQ5KUs6snfdM7VhT9nES4fTY9Vyrbi5PpT73U9C7";
+const POSTHOG_HOST = "https://us.i.posthog.com";
+
+let adapter = createNoopAdapter();
+let posthogLoadPromise = null;
+const queuedCalls = [];
+
+function createNoopAdapter() {
+  return {
+    identify(userId, traits = {}) {
+      queuedCalls.push({ type: "identify", userId, traits });
+    },
+    track(name, properties = {}) {
+      queuedCalls.push({ type: "track", name, properties });
+    },
+  };
+}
+
+function flushQueuedCalls(nextAdapter) {
+  while (queuedCalls.length > 0) {
+    const call = queuedCalls.shift();
+    if (call.type === "identify") {
+      nextAdapter.identify(call.userId, call.traits);
+    } else if (call.type === "track") {
+      nextAdapter.track(call.name, call.properties);
+    }
+  }
+}
+
+function hashString(value) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function randomId() {
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function storageFor(storage = globalThis.localStorage) {
+  if (!storage || typeof storage.getItem !== "function" || typeof storage.setItem !== "function") {
+    return null;
+  }
+  return storage;
+}
+
+function normalizeEventProperties(properties = {}) {
+  return Object.entries(properties).reduce((result, [key, value]) => {
+    if (value === undefined || value === null) return result;
+    const type = typeof value;
+    if (type === "string" || type === "number" || type === "boolean") {
+      result[key] = value;
+    }
+    return result;
+  }, {});
+}
+
+function getOrCreateAnalyticsIdentity(userName = "", storage = globalThis.localStorage) {
+  const safeStorage = storageFor(storage);
+  const normalizedName = String(userName || "").trim().toLowerCase();
+  const key = `${ANALYTICS_STORAGE_PREFIX}${normalizedName || "__anonymous__"}`;
+
+  if (!safeStorage) {
+    return `anon_${normalizedName ? hashString(normalizedName) : randomId()}`;
+  }
+
+  const existing = safeStorage.getItem(key);
+  if (existing) return existing;
+
+  const nextId = `anon_${normalizedName ? hashString(normalizedName) : randomId()}`;
+  try {
+    safeStorage.setItem(key, nextId);
+  } catch {}
+  return nextId;
+}
+
+function buildAssetHost(apiHost) {
+  return apiHost.replace(".i.posthog.com", "-assets.i.posthog.com");
+}
+
+function loadPostHog() {
+  if (typeof document === "undefined") return Promise.resolve(null);
+  if (globalThis.posthog?.__loaded) return Promise.resolve(globalThis.posthog);
+  if (posthogLoadPromise) return posthogLoadPromise;
+
+  posthogLoadPromise = new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    script.src = `${buildAssetHost(POSTHOG_HOST)}/static/array.js`;
+    script.onload = () => resolve(globalThis.posthog || null);
+    script.onerror = () => resolve(null);
+    document.head.appendChild(script);
+  });
+
+  return posthogLoadPromise;
+}
+
+async function initAnalytics({ userName = "", storage = globalThis.localStorage } = {}) {
+  const userId = getOrCreateAnalyticsIdentity(userName, storage);
+  const posthog = await loadPostHog();
+
+  if (!posthog?.init) {
+    adapter = createNoopAdapter();
+    return { userId, ready: false };
+  }
+
+  posthog.init(POSTHOG_TOKEN, {
+    api_host: POSTHOG_HOST,
+    defaults: "2026-05-30",
+    person_profiles: "identified_only",
+    autocapture: false,
+    capture_pageview: false,
+    capture_pageleave: false,
+  });
+
+  adapter = {
+    identify(id, traits = {}) {
+      posthog.identify(id, normalizeEventProperties(traits));
+    },
+    track(name, properties = {}) {
+      posthog.capture(name, normalizeEventProperties(properties));
+    },
+  };
+
+  flushQueuedCalls(adapter);
+
+  if (userName) {
+    adapter.identify(userId, { user_name: userName });
+  }
+
+  return { userId, ready: true };
+}
+
+function identify(userId, traits = {}) {
+  adapter.identify(userId, traits);
+}
+
+function track(name, properties = {}) {
+  adapter.track(name, properties);
+}
+
+const POSITION_KEY = "review-system:v2:ai-translator-position";
+
+function getSelectionText() {
+  const selected = globalThis.getSelection?.();
+  return selected ? selected.toString().trim() : "";
+}
+
+function readSavedPosition() {
+  try {
+    const raw = localStorage.getItem(POSITION_KEY);
+    if (!raw) return { x: null, y: null };
+    const parsed = JSON.parse(raw);
+    return {
+      x: Number.isFinite(parsed.x) ? parsed.x : null,
+      y: Number.isFinite(parsed.y) ? parsed.y : null,
+    };
+  } catch {
+    return { x: null, y: null };
+  }
+}
+
+function savePosition(x, y) {
+  try {
+    localStorage.setItem(POSITION_KEY, JSON.stringify({ x, y }));
+  } catch {}
+}
+
+function collectLocalEntries(state) {
+  const entries = [];
+
+  for (const card of state.flashcards || []) {
+    entries.push({
+      word: card.word,
+      zh: card.zh || "待补充释义",
+      pos: card.pos || "—",
+      context: card.context || "",
+      source: "闪卡词库",
+    });
+  }
+
+  for (const project of state.projects || []) {
+    for (const folder of project.folders || []) {
+      for (const module of folder.modules || []) {
+        if (module.type !== "vocabulary") continue;
+        for (const item of module.vocabulary || []) {
+          entries.push({
+            word: item.word,
+            zh: item.zh || "待补充释义",
+            pos: item.pos || "—",
+            context: item.context || "",
+            source: module.title || "词汇模块",
+          });
+        }
+      }
+    }
+  }
+
+  return entries;
+}
+
+function findLocalMeaning(state, query) {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return null;
+
+  const entries = collectLocalEntries(state);
+  return entries.find((item) => item.word.toLowerCase() === normalized)
+    || entries.find((item) => item.word.toLowerCase().includes(normalized));
+}
+
+function buildResult(state, query, apiReady) {
+  if (!query.trim()) {
+    return {
+      title: "输入一个单词或短语",
+      body: "你可以自己输入，也可以先在页面里选中文字，再点“填入选中内容”。",
+    };
+  }
+
+  const local = findLocalMeaning(state, query);
+  if (local) {
+    return {
+      title: `${local.word} · ${local.pos}`,
+      body: `${local.zh}\n\n来源：${local.source}${local.context ? `\n例句：${local.context}` : ""}`,
+    };
+  }
+
+  if (!apiReady) {
+    return {
+      title: "本地词库未命中",
+      body: `“${query}” 目前不在你的本地词库中。\n\n你可以前往设置启用 AI 翻译，获得词义、例句和记忆提示。`,
+    };
+  }
+
+  return {
+    title: "AI 翻译服务已准备",
+    body: `已识别：${query}\n\n翻译结果会显示在这里。`,
+  };
+}
+
+function clampPosition(x, y, panel) {
+  const width = panel.offsetWidth || 380;
+  const height = panel.offsetHeight || 420;
+  const maxX = Math.max(12, window.innerWidth - width - 12);
+  const maxY = Math.max(12, window.innerHeight - height - 12);
+
+  return {
+    x: Math.min(Math.max(12, x), maxX),
+    y: Math.min(Math.max(12, y), maxY),
+  };
+}
+
+function applyPosition(panel, x, y) {
+  const next = clampPosition(x, y, panel);
+  panel.style.left = `${next.x}px`;
+  panel.style.top = `${next.y}px`;
+  panel.style.right = "auto";
+  panel.style.bottom = "auto";
+  savePosition(next.x, next.y);
+}
+
+function syncAiTranslatorWidget(store, navigate) {
+  const state = store.getState();
+  const enabled = state.settings?.aiFloatingTranslateEnabled !== false;
+  const apiReady = Boolean(state.settings?.aiApiKey);
+
+  let toggle = document.querySelector(".ai-translator-toggle");
+  let panel = document.querySelector(".ai-translator-floating");
+
+  if (!enabled) {
+    toggle?.remove();
+    panel?.remove();
+    return;
+  }
+
+  if (!toggle) {
+    toggle = document.createElement("button");
+    toggle.className = "ai-translator-toggle";
+    toggle.type = "button";
+    toggle.setAttribute("aria-label", "AI 翻译器");
+    document.body.appendChild(toggle);
+  }
+
+  if (!panel) {
+    panel = document.createElement("section");
+    panel.className = "ai-translator-floating paper-panel";
+    panel.style.display = "none";
+    panel.innerHTML = `
+      <div class="ai-translator-dragbar" data-drag-handle>
+        <div>
+          <p class="label">AI 翻译</p>
+          <h4>自由翻译器</h4>
+        </div>
+        <div class="ai-translator-head-actions">
+          <button class="ai-translator-head-btn" type="button" data-action="fill-selection">填入选中</button>
+          <button class="ai-translator-head-btn" type="button" data-action="minimize">收起</button>
+        </div>
+      </div>
+      <div class="ai-translator-window">
+        <label class="ai-translator-input-wrap">
+          <span class="ai-translator-kicker">输入生词 / 短语</span>
+          <input class="ai-translator-input" type="text" placeholder="例如：adversity / cognitive flexibility" />
+        </label>
+        <div class="hero-actions ai-translator-actions">
+          <button class="primary-btn" type="button" data-action="lookup">查询翻译</button>
+          <button class="secondary-btn" type="button" data-action="open-settings">AI 设置</button>
+        </div>
+        <div class="ai-translator-result-card">
+          <div class="ai-translator-result-title" data-ai-title>输入一个单词或短语</div>
+          <div class="ai-translator-result" data-ai-result>你可以自己输入，也可以先在页面里选中文字，再点“填入选中内容”。</div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(panel);
+  }
+
+  toggle.innerHTML = `
+    <span class="ai-translator-toggle-icon">译</span>
+    <span class="ai-translator-toggle-text">翻译器</span>
+  `;
+  toggle.title = "打开自由翻译浮窗";
+
+  const input = panel.querySelector(".ai-translator-input");
+  const titleEl = panel.querySelector("[data-ai-title]");
+  const resultEl = panel.querySelector("[data-ai-result]");
+
+  function renderLookup(query) {
+    const result = buildResult(store.getState(), query, apiReady);
+    titleEl.textContent = result.title;
+    resultEl.textContent = result.body;
+  }
+
+  function openPanel(prefill = "") {
+    panel.style.display = "grid";
+    const saved = readSavedPosition();
+    if (saved.x === null || saved.y === null) {
+      applyPosition(panel, window.innerWidth - 410, window.innerHeight - 520);
+    } else {
+      applyPosition(panel, saved.x, saved.y);
+    }
+
+    const query = prefill || input.value.trim() || getSelectionText();
+    if (query) input.value = query;
+    renderLookup(input.value.trim());
+    input.focus();
+    input.select();
+  }
+
+  function closePanel() {
+    panel.style.display = "none";
+  }
+
+  toggle.onclick = () => openPanel();
+
+  panel.querySelector('[data-action="minimize"]').onclick = closePanel;
+  panel.querySelector('[data-action="open-settings"]').onclick = () => {
+    store.track("ai_floating_settings_opened", { route: state.route });
+    navigate("settings");
+  };
+  panel.querySelector('[data-action="fill-selection"]').onclick = () => {
+    const selected = getSelectionText();
+    if (!selected) {
+      renderLookup("");
+      return;
+    }
+    input.value = selected;
+    renderLookup(selected);
+  };
+  panel.querySelector('[data-action="lookup"]').onclick = () => {
+    const query = input.value.trim();
+    store.track("ai_floating_lookup_submitted", {
+      route: state.route,
+      query_length: query.length,
+      ai_ready: apiReady,
+    });
+    renderLookup(query);
+  };
+
+  input.onkeydown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      panel.querySelector('[data-action="lookup"]').click();
+    }
+    if (event.key === "Escape") {
+      closePanel();
+    }
+  };
+
+  const handle = panel.querySelector("[data-drag-handle]");
+  if (!handle.dataset.bound) {
+    handle.dataset.bound = "true";
+    handle.addEventListener("pointerdown", (event) => {
+      if (event.target.closest("button")) return;
+      const rect = panel.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const offsetY = event.clientY - rect.top;
+
+      const move = (moveEvent) => {
+        applyPosition(panel, moveEvent.clientX - offsetX, moveEvent.clientY - offsetY);
+      };
+
+      const stop = () => {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", stop);
+      };
+
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", stop);
+    });
+  }
+
+  if (!window.__aiTranslatorResizeBound) {
+    window.__aiTranslatorResizeBound = true;
+    window.addEventListener("resize", () => {
+      const activePanel = document.querySelector(".ai-translator-floating");
+      if (activePanel && activePanel.style.display !== "none") {
+        const rect = activePanel.getBoundingClientRect();
+        applyPosition(activePanel, rect.left, rect.top);
+      }
+    });
+  }
+}
+
 
 function renderObsidian(store, navigate) {
   const el = document.createElement("div");
@@ -6568,7 +8022,10 @@ function bootstrap(userName) {
   const seed = structuredClone(seedState);
   if (userName) seed.userName = userName;
   const initialState = createHydratedState(seed);
-  store = createStore(initialState, { persist(s) { persistState(s); } });
+  store = createStore(initialState, {
+    persist(s) { persistState(s); },
+    analytics: { track },
+  });
 
   // Apply theme
   const theme = initialState.settings?.colorTheme || "default";
@@ -6578,6 +8035,7 @@ function bootstrap(userName) {
     const shell = createAppShell(store, navigate);
     shell.querySelector("[data-shell-content]").appendChild(contentNode);
     app.replaceChildren(shell);
+    syncAiTranslatorWidget(store, navigate);
   }
 
   navigate = (route, payload = {}) => {
@@ -6596,6 +8054,13 @@ function bootstrap(userName) {
 
   initQuickNote();
 
+  const userId = getOrCreateAnalyticsIdentity(userName);
+  identify(userId, { user_name: userName });
+  track("login_success", { route: initialState.route || "dashboard" });
+  initAnalytics({ userName }).catch((error) => {
+    console.warn("Analytics init failed", error);
+  });
+
   try {
     navigate("dashboard");
   } catch (e) {
@@ -6606,6 +8071,7 @@ function bootstrap(userName) {
     const shell = createAppShell(store, navigate);
     shell.querySelector("[data-shell-content]").appendChild(renderDashboard(store, navigate));
     app.replaceChildren(shell);
+    syncAiTranslatorWidget(store, navigate);
   }
 }
 
