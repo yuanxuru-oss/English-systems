@@ -66,42 +66,81 @@ const translationTemplate = `[模块类型] translation
 export function renderImportCenter(store) {
   const state = store.getState();
   const folder = store.getCurrentFolder();
+  const aiReady = Boolean(state.settings?.aiApiKey);
+  const aiTemplateEnabled = state.settings?.aiTemplateEnabled !== false;
   const el = document.createElement("div");
   el.className = "stack-layout";
 
   el.innerHTML = `
     <section class="paper-panel import-layout">
       <div>
-        <p class="label">Template-first import</p>
-        <h3>模板化粘贴，一键生成练习模块</h3>
-        <p>支持阅读、精听填空、听力原题、词汇、翻译模板。导入内容将加入：<strong>${folder ? folder.title : "未选择试卷"}</strong>。<br/>听力类型可上传音频文件（MP3/WAV），导入后自动绑定。</p>
+        <p class="label">导入复习内容</p>
+        <h3>把你的资料整理成可练习的内容</h3>
+        <p>支持阅读、精听、听力原题、词汇和翻译。内容会加入：<strong>${folder ? folder.title : "当前试卷"}</strong>。<br/>听力练习可同时上传 MP3 或 WAV 音频。</p>
       </div>
-      <div class="import-tabs" data-tabs>
-        <button class="import-tab active" data-tab="reading">📖 阅读填空</button>
-        <button class="import-tab" data-tab="readingComp">📖 阅读原题</button>
-        <button class="import-tab" data-tab="listening">🎧 精听填空</button>
-        <button class="import-tab" data-tab="listeningComp">🔊 听力原题</button>
-        <button class="import-tab" data-tab="vocabulary">📝 词汇表</button>
-        <button class="import-tab" data-tab="translation">🌐 翻译练习</button>
-      </div>
-      <div class="import-duo">
-        <textarea class="editor-panel" data-template-input>${templates.reading}</textarea>
-        <div class="preview-panel" data-preview-panel>
-          <p class="preview-empty">点击"生成预览"后，这里会显示将被导入的模块内容。</p>
+      <div class="import-section import-section-ai">
+        <div class="import-section-head">
+          <div>
+            <p class="label">AI Import</p>
+            <h4>AI 导入</h4>
+            <p>${aiTemplateEnabled ? "把原题、题干或笔记整理成可预览的练习草稿。" : "你已在设置中关闭 AI 题目整理功能。"}</p>
+          </div>
+          <span class="sketch-badge">${aiReady ? "AI 已可配置" : "待配置 API"}</span>
+        </div>
+        <div class="import-ai-grid">
+          <div class="preview-panel import-ai-card">
+            <p class="label">原题文本 → 练习草稿</p>
+            <h4>让 AI 帮你整理练习内容</h4>
+            <p>粘贴原题文本后，AI 可以识别题型并生成一份可检查、可修改的练习草稿。</p>
+            <div class="hero-actions">
+              <button class="secondary-btn" data-action="open-ai-template">${aiReady && aiTemplateEnabled ? "使用 AI 整理题目" : "去设置里启用 AI"}</button>
+            </div>
+          </div>
+          <div class="preview-panel import-ai-card import-ai-card-note">
+            <p class="label">整理步骤</p>
+            <ul class="preview-list">
+              <li>粘贴原题文本 / 听力原文 / 词汇笔记</li>
+              <li>自动识别为阅读、听力、词汇或翻译模块</li>
+              <li>生成练习草稿，再由你检查并确认导入</li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="import-audio-row" data-import-audio>
-        <label class="import-audio-label">
-          <span>🎵 听力音频<span style="color:var(--accent);font-weight:600">（精听/听力原题必选）</span></span>
-          <input type="file" accept="audio/mp3,audio/wav,audio/mpeg,audio/wav,.mp3,.wav" data-audio-file hidden />
-          <span class="import-audio-btn">📁 选择音频文件</span>
-        </label>
-        <span class="import-audio-name" data-audio-name>未选择文件</span>
-        <span class="import-audio-hint">点击上方按钮选择 MP3 或 WAV 文件，选择后下方会显示文件名 ✓。支持任意长度音频。</span>
-      </div>
-      <div class="hero-actions">
-        <button class="primary-btn" data-action="preview">生成预览</button>
-        <button class="secondary-btn" data-action="apply">加入当前项目</button>
+      <div class="import-section import-section-manual">
+        <div class="import-section-head">
+          <div>
+            <p class="label">Manual Import</p>
+            <h4>手动导入</h4>
+            <p>选择题型，粘贴内容，预览后确认导入。你可以随时修改后再继续。</p>
+          </div>
+        </div>
+        <div class="import-tabs" data-tabs>
+          <button class="import-tab active" data-tab="reading">📖 阅读填空</button>
+          <button class="import-tab" data-tab="readingComp">📖 阅读原题</button>
+          <button class="import-tab" data-tab="listening">🎧 精听填空</button>
+          <button class="import-tab" data-tab="listeningComp">🔊 听力原题</button>
+          <button class="import-tab" data-tab="vocabulary">📝 词汇表</button>
+          <button class="import-tab" data-tab="translation">🌐 翻译练习</button>
+        </div>
+        <div class="import-duo">
+          <textarea class="editor-panel" data-template-input>${templates.reading}</textarea>
+          <div class="preview-panel" data-preview-panel>
+            <p class="preview-empty">点击“生成预览”后，这里会显示将被导入的模块内容。</p>
+          </div>
+        </div>
+        <div class="import-audio-row" data-import-audio>
+          <label class="import-audio-label">
+            <span>🎵 听力音频<span style="color:var(--accent);font-weight:600">（精听/听力原题必选）</span></span>
+            <input type="file" accept="audio/mp3,audio/wav,audio/mpeg,audio/wav,.mp3,.wav" data-audio-file hidden />
+            <span class="import-audio-btn">📁 选择音频文件</span>
+          </label>
+          <span class="import-audio-name" data-audio-name>未选择文件</span>
+          <span class="import-audio-hint">点击上方按钮选择 MP3 或 WAV 文件，选择后下方会显示文件名 ✓。支持任意长度音频。</span>
+        </div>
+        <div class="hero-actions">
+          <button class="primary-btn" data-action="preview">生成预览</button>
+          <button class="secondary-btn" data-action="apply">加入当前项目</button>
+        </div>
       </div>
     </section>
   `;
@@ -131,6 +170,12 @@ export function renderImportCenter(store) {
       const sizeMB = (file.size / 1024 / 1024).toFixed(1);
       audioNameEl.textContent = `✅ ${file.name} (${sizeMB} MB)`;
       audioRow.classList.add("has-audio");
+      store.track("import_audio_attached", {
+        route: store.getState().route,
+        file_name: file.name,
+        file_type: file.type || "unknown",
+        file_size_mb: Number(sizeMB),
+      });
     };
     reader.onerror = () => {
       audioNameEl.textContent = "❌ 文件读取失败，请重试";
@@ -146,6 +191,10 @@ export function renderImportCenter(store) {
       tab.classList.add("active");
 
       const tabKey = tab.dataset.tab;
+      store.track("import_template_switched", {
+        route: store.getState().route,
+        template_key: tabKey,
+      });
       if (tabKey === "listening") {
         input.value = templates.listening;
       } else if (tabKey === "readingComp") {
@@ -206,6 +255,20 @@ export function renderImportCenter(store) {
   el.querySelector('[data-action="preview"]').addEventListener("click", () => {
     store.actions.importTemplateBlock(input.value);
     renderPreview();
+  });
+
+  el.querySelector('[data-action="open-ai-template"]')?.addEventListener("click", () => {
+    store.track("ai_template_entry_clicked", {
+      route: store.getState().route,
+      ai_ready: aiReady,
+      enabled: aiTemplateEnabled,
+    });
+    if (!aiTemplateEnabled || !aiReady) {
+      alert("先在设置中填写 AI 服务信息，之后就能使用 AI 整理题目。");
+      navigate("settings");
+      return;
+    }
+    alert("AI 题目整理功能正在连接服务。配置完成后，这里会直接生成可修改的练习草稿。");
   });
 
   el.querySelector('[data-action="apply"]').addEventListener("click", () => {

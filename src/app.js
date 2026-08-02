@@ -17,6 +17,8 @@ import { renderVocabulary } from "./modules/vocabulary/vocabulary.js";
 import { renderSettings } from "./modules/settings/settings.js";
 import { renderObsidianPanel, bindObsidianPanel } from "./modules/obsidian/obsidian-bridge.js";
 import { seedState } from "./data/seed.js";
+import { identify, initAnalytics, track, getOrCreateAnalyticsIdentity } from "./core/analytics.js";
+import { syncAiTranslatorWidget } from "./components/ai-translator-widget.js";
 
 function renderObsidian(store, navigate) {
   const el = document.createElement("div");
@@ -85,7 +87,10 @@ function bootstrap(userName) {
   const seed = structuredClone(seedState);
   if (userName) seed.userName = userName;
   const initialState = createHydratedState(seed);
-  store = createStore(initialState, { persist(s) { persistState(s); } });
+  store = createStore(initialState, {
+    persist(s) { persistState(s); },
+    analytics: { track },
+  });
 
   // Apply theme
   const theme = initialState.settings?.colorTheme || "default";
@@ -95,6 +100,7 @@ function bootstrap(userName) {
     const shell = createAppShell(store, navigate);
     shell.querySelector("[data-shell-content]").appendChild(contentNode);
     app.replaceChildren(shell);
+    syncAiTranslatorWidget(store, navigate);
   }
 
   navigate = (route, payload = {}) => {
@@ -113,6 +119,13 @@ function bootstrap(userName) {
 
   initQuickNote();
 
+  const userId = getOrCreateAnalyticsIdentity(userName);
+  identify(userId, { user_name: userName });
+  track("login_success", { route: initialState.route || "dashboard" });
+  initAnalytics({ userName }).catch((error) => {
+    console.warn("Analytics init failed", error);
+  });
+
   try {
     navigate("dashboard");
   } catch (e) {
@@ -123,6 +136,7 @@ function bootstrap(userName) {
     const shell = createAppShell(store, navigate);
     shell.querySelector("[data-shell-content]").appendChild(renderDashboard(store, navigate));
     app.replaceChildren(shell);
+    syncAiTranslatorWidget(store, navigate);
   }
 }
 

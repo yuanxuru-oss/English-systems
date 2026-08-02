@@ -12,6 +12,11 @@ const COLOR_THEMES = [
   { value: "sakura", label: "樱花粉", desc: "温柔暖调", color: "#b85a6a" },
 ];
 
+const AI_PROVIDERS = [
+  { value: "dashscope", label: "阿里云百炼", desc: "推荐用于翻译和题目整理" },
+  { value: "custom", label: "自定义平台", desc: "使用你自己的 AI 服务" },
+];
+
 function renderSection(title, content) {
   return `
     <div class="settings-section">
@@ -102,6 +107,64 @@ export function renderSettings(store, navigate) {
         </div>
       `)}
 
+      ${renderSection("✨ AI 学习辅助", `
+        <div class="settings-info">
+          <span class="settings-info-label">状态</span>
+          <span class="settings-info-desc">配置 AI 服务后，可使用翻译辅助和题目整理功能。</span>
+        </div>
+        <div class="settings-option-group theme-group" style="margin-top:12px">
+          ${AI_PROVIDERS.map((provider) => `
+            <label class="settings-option theme-option ${(settings.aiProvider || "dashscope") === provider.value ? "active" : ""}" data-setting="aiProvider" data-value="${provider.value}">
+              <span class="settings-option-label">${provider.label}</span>
+              <span class="settings-option-desc">${provider.desc}</span>
+            </label>
+          `).join("")}
+        </div>
+        <div class="settings-row" style="margin-top:14px">
+          <div class="settings-info">
+            <span class="settings-info-label">API 地址</span>
+            <span class="settings-info-desc">使用自定义平台时填写接口地址；阿里云百炼可保留为空。</span>
+          </div>
+        </div>
+        <div class="settings-storage-key-row">
+          <input type="text" class="settings-endpoint-input" value="${settings.aiEndpoint || ""}" placeholder="例如：https://dashscope.aliyuncs.com/compatible-mode/v1" />
+          <button class="secondary-btn" data-action="save-endpoint">保存地址</button>
+        </div>
+        <div class="settings-row" style="margin-top:14px">
+          <div class="settings-info">
+            <span class="settings-info-label">API Key</span>
+            <span class="settings-info-desc">仅保存在当前浏览器，用于你自己的 AI 功能调用。</span>
+          </div>
+        </div>
+        <div class="settings-storage-key-row">
+          <input type="password" class="settings-api-key-input" value="${settings.aiApiKey || ""}" placeholder="输入你的 API Key" />
+          <button class="secondary-btn" data-action="save-api-key">保存 Key</button>
+        </div>
+        <div class="settings-toggles" style="margin-top:14px">
+          <label class="settings-toggle">
+            <div>
+              <span class="settings-toggle-label">启用 AI 翻译辅助</span>
+              <span class="settings-toggle-desc">用于翻译润色、参考表达和句子拆解。</span>
+            </div>
+            <input type="checkbox" data-setting="aiTranslationEnabled" ${settings.aiTranslationEnabled !== false ? "checked" : ""} class="settings-switch" />
+          </label>
+          <label class="settings-toggle">
+            <div>
+              <span class="settings-toggle-label">显示 AI 翻译浮窗按钮</span>
+              <span class="settings-toggle-desc">选中页面生词后，可随时打开翻译小窗。</span>
+            </div>
+            <input type="checkbox" data-setting="aiFloatingTranslateEnabled" ${settings.aiFloatingTranslateEnabled !== false ? "checked" : ""} class="settings-switch" />
+          </label>
+          <label class="settings-toggle">
+            <div>
+              <span class="settings-toggle-label">启用 AI 题目整理</span>
+              <span class="settings-toggle-desc">把原题文本整理成可检查、可修改的练习草稿。</span>
+            </div>
+            <input type="checkbox" data-setting="aiTemplateEnabled" ${settings.aiTemplateEnabled !== false ? "checked" : ""} class="settings-switch" />
+          </label>
+        </div>
+      `)}
+
       ${renderSection("🔔 提醒设置", `
         <div class="settings-toggles">
           <label class="settings-toggle">
@@ -118,16 +181,6 @@ export function renderSettings(store, navigate) {
         </div>
       `)}
 
-      ${renderSection("ℹ️ 关于", `
-        <div class="settings-info">
-          <span class="settings-info-label">版本</span>
-          <span class="settings-info-value">v1.0.0</span>
-        </div>
-        <div class="settings-info">
-          <span class="settings-info-label">项目</span>
-          <span class="settings-info-value">鱼骨头英语复习系统</span>
-        </div>
-      `)}
     </section>
   `;
 
@@ -142,10 +195,24 @@ export function renderSettings(store, navigate) {
     });
   });
 
+  el.querySelectorAll("[data-setting='aiProvider']").forEach((label) => {
+    label.addEventListener("click", () => {
+      store.actions.updateSettings({ aiProvider: label.dataset.value });
+      store.track("ai_provider_selected", { provider: label.dataset.value, route: state.route });
+      navigate("settings");
+    });
+  });
+
   // Toggle switches
   el.querySelectorAll(".settings-switch").forEach((checkbox) => {
     checkbox.addEventListener("change", () => {
       store.actions.updateSettings({ [checkbox.dataset.setting]: checkbox.checked });
+      if (checkbox.dataset.setting === "aiFloatingTranslateEnabled") {
+        store.track("ai_floating_toggle_changed", {
+          enabled: checkbox.checked,
+          route: state.route,
+        });
+      }
     });
   });
 
@@ -156,6 +223,24 @@ export function renderSettings(store, navigate) {
       store.actions.updateSettings({ reminderTime: timeInput.value });
     });
   }
+
+  el.querySelector('[data-action="save-endpoint"]')?.addEventListener("click", () => {
+    const value = el.querySelector(".settings-endpoint-input")?.value?.trim() || "";
+    store.actions.updateSettings({ aiEndpoint: value });
+    store.track("ai_endpoint_saved", { has_value: Boolean(value), route: state.route });
+    alert("AI 接口地址已保存到当前浏览器。");
+  });
+
+  el.querySelector('[data-action="save-api-key"]')?.addEventListener("click", () => {
+    const value = el.querySelector(".settings-api-key-input")?.value?.trim() || "";
+    store.actions.updateSettings({ aiApiKey: value });
+    store.track("ai_api_key_saved", {
+      provider: store.getState().settings?.aiProvider || "dashscope",
+      has_value: Boolean(value),
+      route: state.route,
+    });
+    alert(value ? "AI Key 已保存到当前浏览器。" : "已清空 AI Key。");
+  });
 
   // Export
   el.querySelector('[data-action="export"]')?.addEventListener("click", () => {

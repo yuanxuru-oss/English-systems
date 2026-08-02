@@ -5,23 +5,60 @@ function moduleIcon(type) {
   return `<span class="module-spot-icon">${icon(type)}</span>`;
 }
 
+function formatDay(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function getDashboardStats(studyLog, mistakes, flashcards) {
+  const studyDays = new Set((studyLog || []).map((entry) => entry.date.slice(0, 10)));
+  const cursor = new Date();
+  let streak = 0;
+  while (studyDays.has(formatDay(cursor))) {
+    streak += 1;
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+
+  const weekStart = new Date();
+  weekStart.setHours(0, 0, 0, 0);
+  weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
+  const weeklyActions = (studyLog || []).filter((entry) => new Date(entry.date) >= weekStart).length;
+  const pendingCards = (flashcards || []).filter((card) => !card.mastered).length;
+
+  return { streak, weeklyActions, pendingCards, pendingMistakes: mistakes?.length || 0 };
+}
+
+function getTodayFocus(stats, state) {
+  if (!state.checkin?.isCheckedIn) {
+    return { route: "reading", title: "先完成一项练习，点亮今天", copy: "从阅读、听力或翻译里任选一个开始，完成后会自动打卡。", action: "开始练习" };
+  }
+  if (stats.pendingMistakes > 0) {
+    return { route: "mistakes", title: `回顾 ${stats.pendingMistakes} 条错题`, copy: "把今天遇到的问题变成下一次更稳的答案。", action: "查看错题" };
+  }
+  if (stats.pendingCards > 0) {
+    return { route: "flashcards", title: `巩固 ${stats.pendingCards} 张闪卡`, copy: "用几分钟复习核心词，让记忆更牢。", action: "去复习闪卡" };
+  }
+  return { route: "project", title: "今天的任务已完成", copy: "可以继续挑战下一套练习，或导入新的复习内容。", action: "继续学习" };
+}
+
 export function renderDashboard(store, navigate) {
   const state = store.getState();
   const project = state.projects.find((item) => item.id === state.currentProjectId) ?? state.projects[0];
   const fishSteps = state.settings?.fishSteps || [];
   const fishProgress = fishSteps.length;
+  const stats = getDashboardStats(state.studyLog, state.mistakes, state.flashcards);
+  const focus = getTodayFocus(stats, state);
 
   const el = document.createElement("div");
   el.className = "page-grid";
   el.innerHTML = `
     <section class="hero-panel paper-panel">
       <div class="hero-copy">
-        <p class="label">Portfolio-inspired study hub</p>
-        <h3>把英语原题、精听、错题、闪卡和打卡，整理成一套可持续迭代的复习作品。</h3>
-        <p>第一版先跑通项目中心、模板导入、阅读练习、错题联动、闪卡与打卡。听力精听层和更完整的原题解析，后续继续接入。</p>
+        <p class="label">今天的英语复习</p>
+        <h3>把每一次练习，变成看得见的进步。</h3>
+        <p>从听力、阅读或翻译开始。做错的题会自动回收到错题笔记和闪卡，让下一次练习更有把握。</p>
         <div class="hero-actions">
-          <button class="primary-btn" data-action="open-project">继续当前项目</button>
-          <button class="secondary-btn" data-action="open-import">导入新内容</button>
+          <button class="primary-btn" data-action="open-project">继续学习</button>
+          <button class="secondary-btn" data-action="open-import">导入内容</button>
         </div>
       </div>
       <div class="hero-illustration" aria-hidden="true">
@@ -53,6 +90,23 @@ export function renderDashboard(store, navigate) {
         </div>
       </div>
     </section>
+    <section class="study-path" aria-label="学习流程">
+      <button type="button" data-action="open-import"><span>01</span>导入内容</button>
+      <i aria-hidden="true"></i>
+      <button type="button" data-action="open-reading"><span>02</span>开始练习</button>
+      <i aria-hidden="true"></i>
+      <button type="button" data-action="open-mistakes"><span>03</span>错题回收</button>
+      <i aria-hidden="true"></i>
+      <button type="button" data-action="open-flashcards"><span>04</span>闪卡巩固</button>
+    </section>
+    <section class="today-focus" aria-label="今日建议">
+      <div>
+        <p class="label">今日建议</p>
+        <h4>${focus.title}</h4>
+        <p>${focus.copy}</p>
+      </div>
+      <button class="primary-btn" type="button" data-action="open-focus">${focus.action}</button>
+    </section>
     ${renderFishProgress(store, navigate)}
     <section class="panel-row">
       <article class="paper-panel stat-panel">
@@ -61,14 +115,19 @@ export function renderDashboard(store, navigate) {
         <p>${project.description}</p>
       </article>
       <article class="paper-panel stat-panel">
-        <p class="label">今日动作</p>
-        <h4>${state.checkin.completedActions.length} 次</h4>
-        <p>完成任意有效学习动作，即可自动打卡。</p>
+        <p class="label">连续打卡</p>
+        <h4>${stats.streak} 天</h4>
+        <p>${state.checkin.isCheckedIn ? "今天已经点亮，继续保持这个节奏。" : "完成一项练习，就能点亮今天。"}</p>
       </article>
       <article class="paper-panel stat-panel">
-        <p class="label">错题池</p>
-        <h4>${state.mistakes.length} 条</h4>
-        <p>支持笔记、再练、加入闪卡与掌握状态追踪。</p>
+        <p class="label">本周完成</p>
+        <h4>${stats.weeklyActions} 次</h4>
+        <p>每一次提交、核对与闪卡复习都会记录在这里。</p>
+      </article>
+      <article class="paper-panel stat-panel">
+        <p class="label">待巩固内容</p>
+        <h4>${stats.pendingMistakes + stats.pendingCards} 项</h4>
+        <p>${stats.pendingMistakes} 条错题，${stats.pendingCards} 张待复习闪卡。</p>
       </article>
     </section>
     <section class="panel-row">
@@ -94,7 +153,11 @@ export function renderDashboard(store, navigate) {
   `;
 
   el.querySelector('[data-action="open-project"]').addEventListener("click", () => navigate("project"));
-  el.querySelector('[data-action="open-import"]').addEventListener("click", () => navigate("import"));
+  el.querySelectorAll('[data-action="open-import"]').forEach((button) => button.addEventListener("click", () => navigate("import")));
+  el.querySelector('[data-action="open-reading"]').addEventListener("click", () => navigate("reading"));
+  el.querySelector('[data-action="open-mistakes"]').addEventListener("click", () => navigate("mistakes"));
+  el.querySelector('[data-action="open-flashcards"]').addEventListener("click", () => navigate("flashcards"));
+  el.querySelector('[data-action="open-focus"]').addEventListener("click", () => navigate(focus.route));
 
   bindFishStepper(el, navigate);
 

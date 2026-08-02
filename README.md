@@ -6,6 +6,8 @@
 
 **[🔗 在线使用](https://yuanxuru-oss.github.io/English-systems/review-system/)**
 
+在线版与桌面版均只在用户自己的设备保存学习数据。需要在两个版本或不同设备之间迁移时，请使用设置页的「导出学习数据」和「导入学习数据」。
+
 ---
 
 ## ✨ 功能
@@ -42,6 +44,8 @@
 - **localStorage** 持久化，键 `review-system:v2`
 - **Node built-in test runner** (TDD)
 - **单文件构建** — 所有 JS/CSS 内联为一个 HTML
+- **dist 桌面构建产物** — 供 Tauri 打包使用
+- **Tauri 桌面壳骨架** — 供本地桌面应用迭代
 - **GitHub Pages** 部署
 
 ---
@@ -74,10 +78,34 @@ node --test tests/*.test.js
 
 ```bash
 # 生成单文件预览
-node build-preview.js
+node build-preview.cjs
 
-# 输出: preview.html（可直接部署到任意静态托管）
+# 输出:
+# - preview.html（可直接部署到任意静态托管）
+# - dist/index.html（供 Tauri 打包）
 ```
+
+## 🚀 发布版本
+
+版本号只在 `package.json` 修改，使用 `主版本.功能版本.修复版本`：
+
+- `1.2.1`：修复问题或微调体验
+- `1.3.0`：新增学习者可用的功能
+- `2.0.0`：产品架构发生明显变化
+
+推送 `main` 会自动更新在线版；推送 `v1.2.0` 形式的 Git 标签会自动生成 Windows EXE，并发布到 GitHub Releases。
+
+## Desktop Packaging
+
+This repo now includes a Tauri-ready structure under `src-tauri/`.
+
+Before packaging on Windows, install the official Tauri prerequisites:
+- Rust / Cargo
+- Visual Studio C++ build tools
+
+Docs:
+- [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/)
+- [Tauri Windows bundling](https://v2.tauri.app/distribute/windows-installer/)
 
 ---
 

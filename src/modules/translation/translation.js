@@ -1,5 +1,3 @@
-import { evaluateCheckinStatus } from "../../core/checkin.js";
-
 function extractKeywords(text) {
   // Extract meaningful English words (3+ chars, not just stopwords)
   const stopWords = new Set(["the","and","for","not","are","how","can","that","this","with","when","from","its","has","but","was","now","all"]);
@@ -31,6 +29,8 @@ function highlightMatches(userText, refText) {
 export function renderTranslation(store, navigate) {
   store.actions.markFishStep("translation");
   const state = store.getState();
+  const aiReady = Boolean(state.settings?.aiApiKey);
+  const aiTranslationEnabled = state.settings?.aiTranslationEnabled !== false;
   const folder = store.getCurrentFolder();
   const transModules = folder ? folder.modules.filter((item) => item.type === "translation") : [];
 
@@ -117,6 +117,15 @@ export function renderTranslation(store, navigate) {
           <h3>${module.title}</h3>
           <p>${module.summary}</p>
         </div>
+        <div class="sketch-badge">${aiTranslationEnabled ? (aiReady ? "AI 翻译辅助已准备" : "填写 AI 服务信息后可使用") : "AI 翻译辅助已关闭"}</div>
+      </div>
+      <div class="preview-panel">
+        <p class="label">AI 翻译辅助</p>
+        <h4>翻译润色 / 表达建议 / 句子拆解</h4>
+        <p>${aiTranslationEnabled ? "配置完成后，AI 可以润色你的答案、解释与参考译文的差异，并提炼值得记忆的表达。" : "你已在设置中关闭 AI 翻译辅助。"}</p>
+        <div class="hero-actions">
+          <button class="secondary-btn" data-action="ai-polish">${aiReady && aiTranslationEnabled ? "使用 AI 翻译辅助" : "去设置里启用 AI"}</button>
+        </div>
       </div>
       <div class="translation-list">
         ${itemsHTML}
@@ -139,18 +148,10 @@ export function renderTranslation(store, navigate) {
     const saveBtn = el.querySelector('[data-action="save"]');
     if (saveBtn) {
       saveBtn.addEventListener("click", () => {
-        el.querySelectorAll("[data-item-id]").forEach((input) => {
-          const item = module.items.find((i) => i.id === input.dataset.itemId);
-          if (item) item.userAnswer = input.value;
-        });
-        state.studyLog.unshift({
-          id: `log-${Date.now()}`,
-          type: "translation",
-          projectId: state.currentProjectId,
-          date: new Date().toISOString(),
-          title: module.title,
-        });
-        state.checkin = evaluateCheckinStatus(state.studyLog);
+        const answers = Object.fromEntries(
+          [...el.querySelectorAll("[data-item-id]")].map((input) => [input.dataset.itemId, input.value])
+        );
+        store.actions.saveTranslationDraft(module.id, answers);
         navigate("translation");
       });
     }
@@ -158,21 +159,10 @@ export function renderTranslation(store, navigate) {
     const checkBtn = el.querySelector('[data-action="check"]');
     if (checkBtn) {
       checkBtn.addEventListener("click", () => {
-        el.querySelectorAll("[data-item-id]").forEach((input) => {
-          const item = module.items.find((i) => i.id === input.dataset.itemId);
-          if (item) item.userAnswer = input.value;
-        });
-        state.studyLog.unshift({
-          id: `log-${Date.now()}`,
-          type: "translation",
-          projectId: state.currentProjectId,
-          date: new Date().toISOString(),
-          title: module.title,
-        });
-        module.items.forEach((item) => {
-          item.isCorrect = computeSimilarity(item.userAnswer, item.reference) >= 50;
-        });
-        state.checkin = evaluateCheckinStatus(state.studyLog);
+        const answers = Object.fromEntries(
+          [...el.querySelectorAll("[data-item-id]")].map((input) => [input.dataset.itemId, input.value])
+        );
+        store.actions.checkTranslationAnswers(module.id, answers, 50);
         navigate("translation", { checked: true });
       });
     }
@@ -180,7 +170,7 @@ export function renderTranslation(store, navigate) {
     const resetBtn = el.querySelector('[data-action="reset"]');
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
-        module.items.forEach((item) => (item.userAnswer = ""));
+        store.actions.resetTranslationAnswers(module.id);
         navigate("translation");
       });
     }
@@ -188,11 +178,26 @@ export function renderTranslation(store, navigate) {
     const resetBtn = el.querySelector('[data-action="reset"]');
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
-        module.items.forEach((item) => (item.userAnswer = ""));
+        store.actions.resetTranslationAnswers(module.id);
         navigate("translation", { checked: false });
       });
     }
   }
+
+  el.querySelector('[data-action="ai-polish"]')?.addEventListener("click", () => {
+    store.track("ai_translation_entry_clicked", {
+      route: state.route,
+      ai_ready: aiReady,
+      enabled: aiTranslationEnabled,
+      module_id: module.id,
+    });
+    if (!aiTranslationEnabled || !aiReady) {
+      alert("先在设置中填写 AI 服务信息，之后就能使用翻译润色和讲解。");
+      navigate("settings");
+      return;
+    }
+    alert("AI 翻译辅助正在连接服务。配置完成后，这里会直接为你的翻译提供润色和讲解。");
+  });
 
   return el;
 }

@@ -24,6 +24,12 @@ const iconSet = {
       <path d="M5.4 18.1c1.5.7 3.9 1.2 6.6 1.2s5.1-.4 6.6-1.2" stroke-linecap="round" />
     </svg>
   `,
+  translation: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5.2 6.2h8.5M9.4 4.7v1.5M7.8 6.2c.4 2.8 1.8 5 4.2 6.5M5.8 12.7c1.5-.7 3-2 4.1-3.8" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M15.1 8.5 19.3 19M13.4 16.1h5.4" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+  `,
   reading: `
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M5.5 6.5c1.8-.8 4.2-1.2 6.5-1.2s4.7.3 6.5 1.2v10.8c-1.8-.8-4.2-1.2-6.5-1.2s-4.7.3-6.5 1.2z" stroke-linecap="round" stroke-linejoin="round" />
@@ -83,6 +89,16 @@ const iconSet = {
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <circle cx="12" cy="12" r="2.2" stroke-linecap="round" />
       <path d="M12 4.2v.8M12 19v.8M4.2 12h.8M19 12h.8M6.5 6.5l.6.5M16.9 16.9l.6.5M6.5 17.5l.6-.5M16.9 7.1l.6-.5" stroke-linecap="round" />
+    </svg>
+  `,
+  menu: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5.5 7h13M5.5 12h13M5.5 17h13" stroke-linecap="round" />
+    </svg>
+  `,
+  close: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m7 7 10 10M17 7 7 17" stroke-linecap="round" />
     </svg>
   `,
   arrowRight: `

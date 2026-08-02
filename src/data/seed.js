@@ -12,6 +12,12 @@ export const seedState = {
     dailyReminder: false,
     reminderTime: "20:00",
     fishSteps: [],
+    aiProvider: "dashscope",
+    aiEndpoint: "",
+    aiApiKey: "",
+    aiTranslationEnabled: true,
+    aiTemplateEnabled: true,
+    aiFloatingTranslateEnabled: true,
   },
   projectKeywords: ["satisfaction", "empathy", "adversity", "regret", "liberation"],
   cetVocabulary: [

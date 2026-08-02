@@ -56,20 +56,13 @@ export function renderVocabulary(store, navigate) {
   `;
 
   el.querySelector('[data-action="add-all-flashcards"]').addEventListener("click", () => {
-    const state = store.getState();
-    const existingWords = new Set(state.flashcards.map((c) => c.word.toLowerCase()));
-    allWords.forEach((w) => {
-      if (!existingWords.has(w.word.toLowerCase())) {
-        state.flashcards.push({ ...w, id: `flash-${w.word.toLowerCase()}` });
-      }
-    });
+    store.actions.addVocabularyToFlashcards(allWords);
     navigate("flashcards");
   });
 
   el.querySelectorAll(".vocab-toggle").forEach((span) => {
     span.addEventListener("click", () => {
-      const word = allWords.find((w) => w.word === span.dataset.word);
-      if (word) word.mastered = !word.mastered;
+      store.actions.toggleVocabularyMastered(span.dataset.word);
       navigate("vocabulary");
     });
   });

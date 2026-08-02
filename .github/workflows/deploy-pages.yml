@@ -1,0 +1,43 @@
+name: Deploy Online Version
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out application source
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Build online version
+        run: |
+          npm ci
+          npm run build
+
+      - name: Check out GitHub Pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: .pages
+
+      - name: Update online app
+        run: |
+          mkdir -p .pages/review-system
+          cp dist/index.html .pages/review-system/index.html
+          cd .pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add review-system/index.html
+          git diff --cached --quiet || git commit -m "Deploy review-system ${{ github.sha }}"
+          git push

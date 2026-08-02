@@ -41,6 +41,8 @@ html = html.replace(/<script[\s\S]*?<\/script>/gi, "");
 html = html.replace("</head>", "<style>\n" + allCSS + "\n</style>\n</head>");
 html = html.replace("</body>", "<script>\n" + appJS + "\n</script>\n</body>");
 
+fs.mkdirSync("dist", { recursive: true });
 fs.writeFileSync("preview.html", html);
+fs.writeFileSync(path.join("dist", "index.html"), html);
 console.log("Done: " + Buffer.byteLength(html, "utf8") + " bytes");
 console.log("Files: " + [...loaded].join(", "));

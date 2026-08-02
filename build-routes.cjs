@@ -9,7 +9,6 @@ routes.forEach((route) => {
   console.log(`preview-${route}.html written`);
 });
 
-// Also generate comprehension-mode previews
 ["reading", "listening"].forEach((route) => {
   let html = fs.readFileSync("preview.html", "utf8");
   html = html.replace('navigate("dashboard")', `navigate("${route}", { mode: "comprehension" })`);

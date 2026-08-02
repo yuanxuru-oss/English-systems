@@ -1,0 +1,16 @@
+[package]
+name = "review_atelier"
+version = "1.2.0"
+description = "Local-first English review desktop app"
+authors = ["Yoselin"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
