@@ -12,10 +12,9 @@ test("DashScope uses the compatible chat completions endpoint", () => {
 
 test("proxy uses its translate endpoint without a browser API key", async () => {
   const result = await translateWithAi("stress", {
-    aiProvider: "proxy",
-    aiEndpoint: "https://fishbone-ai.example.workers.dev/",
+    aiProvider: "free",
   }, async (url, options) => {
-    assert.equal(url, "https://fishbone-ai.example.workers.dev/translate");
+    assert.equal(url, "https://fishbone-ai.yoselin-fishbone-ai.workers.dev/translate");
     assert.equal(options.headers.Authorization, undefined);
     assert.equal(JSON.parse(options.body).query, "stress");
     return { ok: true, json: async () => ({ content: "n. 压力" }) };

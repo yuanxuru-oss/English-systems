@@ -13,8 +13,7 @@ const COLOR_THEMES = [
 ];
 
 const AI_PROVIDERS = [
-  { value: "proxy", label: "安全代理", desc: "在线版推荐，不在浏览器保存 API Key" },
-  { value: "dashscope", label: "阿里云百炼", desc: "推荐用于翻译和题目整理" },
+  { value: "free", label: "免费额度", desc: "系统提供的 AI 翻译体验" },
   { value: "custom", label: "自定义平台", desc: "使用你自己的 AI 服务" },
 ];
 
@@ -30,7 +29,7 @@ function renderSection(title, content) {
 export function renderSettings(store, navigate) {
   const state = store.getState();
   const settings = state.settings || {};
-  const usesProxy = settings.aiProvider === "proxy";
+  const usesFreeQuota = settings.aiProvider === "free" || settings.aiProvider === "proxy";
   const el = document.createElement("div");
   el.className = "stack-layout";
   const _sk = getKey(state);
@@ -122,25 +121,25 @@ export function renderSettings(store, navigate) {
             </label>
           `).join("")}
         </div>
-        <div class="settings-row" style="margin-top:14px">
-          <div class="settings-info">
-            <span class="settings-info-label">API 地址</span>
-            <span class="settings-info-desc">安全代理填写 Worker 地址；自定义平台填写接口地址；阿里云百炼可保留为空。</span>
-          </div>
-        </div>
-        <div class="settings-storage-key-row">
-          <input type="text" class="settings-endpoint-input" value="${settings.aiEndpoint || ""}" placeholder="${usesProxy ? "例如：https://fishbone-ai.<你的域名>.workers.dev" : "例如：https://dashscope.aliyuncs.com/compatible-mode/v1"}" />
-          <button class="secondary-btn" data-action="save-endpoint">保存地址</button>
-        </div>
-        ${usesProxy ? `
+        ${usesFreeQuota ? `
         <div class="settings-info" style="margin-top:14px">
-          <span class="settings-info-label">已启用安全代理</span>
-          <span class="settings-info-desc">API Key 保存在代理服务中，在线版不需要也不会保存 Key。</span>
+          <span class="settings-info-label">已选择免费额度</span>
+          <span class="settings-info-desc">由鱼骨头英语复习系统提供基础翻译体验，无需填写 API Key。</span>
         </div>
         ` : `<div class="settings-row" style="margin-top:14px">
           <div class="settings-info">
+            <span class="settings-info-label">API 地址</span>
+            <span class="settings-info-desc">填写兼容 OpenAI 格式的 AI 服务地址。</span>
+          </div>
+        </div>
+        <div class="settings-storage-key-row">
+          <input type="text" class="settings-endpoint-input" value="${settings.aiEndpoint || ""}" placeholder="例如：https://your-api.example.com/v1" />
+          <button class="secondary-btn" data-action="save-endpoint">保存地址</button>
+        </div>
+        <div class="settings-row" style="margin-top:14px">
+          <div class="settings-info">
             <span class="settings-info-label">API Key</span>
-            <span class="settings-info-desc">仅保存在当前浏览器，用于你自己的 AI 功能调用。</span>
+            <span class="settings-info-desc">仅保存在当前浏览器，用于调用你自己的 AI 服务。</span>
           </div>
         </div>
         <div class="settings-storage-key-row">
@@ -215,7 +214,11 @@ export function renderSettings(store, navigate) {
 
   el.querySelectorAll("[data-setting='aiProvider']").forEach((label) => {
     label.addEventListener("click", () => {
-      store.actions.updateSettings({ aiProvider: label.dataset.value });
+      const nextProvider = label.dataset.value;
+      store.actions.updateSettings({
+        aiProvider: nextProvider,
+        ...(nextProvider === "free" ? { aiEndpoint: "", aiApiKey: "" } : {}),
+      });
       store.track("ai_provider_selected", { provider: label.dataset.value, route: state.route });
       navigate("settings");
     });

@@ -1,9 +1,9 @@
 const DASHSCOPE_ENDPOINT = "https://dashscope.aliyuncs.com/compatible-mode/v1";
+export const FREE_AI_ENDPOINT = "https://fishbone-ai.yoselin-fishbone-ai.workers.dev";
 
 export function resolveAiEndpoint(settings = {}) {
-  if (settings.aiProvider === "proxy") {
-    const base = settings.aiEndpoint?.trim();
-    if (!base) throw new Error("请先在设置中填写 AI 代理地址。");
+  if (settings.aiProvider === "free" || settings.aiProvider === "proxy") {
+    const base = settings.aiEndpoint?.trim() || FREE_AI_ENDPOINT;
     return `${base.replace(/\/+$/, "")}/translate`;
   }
   const base = settings.aiProvider === "custom" && settings.aiEndpoint
@@ -27,7 +27,7 @@ export function buildTranslationMessages(query) {
 
 export async function translateWithAi(query, settings, request = globalThis.fetch) {
   const apiKey = settings?.aiApiKey?.trim();
-  const usingProxy = settings?.aiProvider === "proxy";
+  const usingProxy = settings?.aiProvider === "free" || settings?.aiProvider === "proxy";
   if (!usingProxy && !apiKey) throw new Error("请先在设置中保存 API Key。");
   if (typeof request !== "function") throw new Error("当前环境不支持 AI 请求。");
 
