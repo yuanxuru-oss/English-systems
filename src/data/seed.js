@@ -213,3 +213,40 @@ export const seedState = {
     completedActions: [],
   },
 };
+
+// New learners start with a usable workspace, but never inherit the demo papers.
+export function createEmptyLearningState(userName = "") {
+  const projectId = `project-${Date.now()}`;
+  const folderId = `folder-${Date.now()}`;
+
+  return {
+    route: "dashboard",
+    routePayload: {},
+    currentProjectId: projectId,
+    currentFolderId: folderId,
+    importPreview: null,
+    userName: userName.trim(),
+    settings: structuredClone(seedState.settings),
+    projectKeywords: [],
+    cetVocabulary: [],
+    projects: [{
+      id: projectId,
+      title: "我的英语复习",
+      description: "从导入你的第一份复习内容开始。",
+      folders: [{
+        id: folderId,
+        title: "第一份复习资料",
+        description: "这里还没有练习内容，导入后会显示在这里。",
+        modules: [],
+      }],
+    }],
+    mistakes: [],
+    flashcards: [],
+    studyLog: [],
+    checkin: {
+      today: new Date().toISOString().slice(0, 10),
+      isCheckedIn: false,
+      completedActions: [],
+    },
+  };
+}

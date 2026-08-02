@@ -16,7 +16,7 @@ import { renderTranslation } from "./modules/translation/translation.js";
 import { renderVocabulary } from "./modules/vocabulary/vocabulary.js";
 import { renderSettings } from "./modules/settings/settings.js";
 import { renderObsidianPanel, bindObsidianPanel } from "./modules/obsidian/obsidian-bridge.js";
-import { seedState } from "./data/seed.js";
+import { createEmptyLearningState, seedState } from "./data/seed.js";
 import { identify, initAnalytics, track, getOrCreateAnalyticsIdentity } from "./core/analytics.js";
 import { syncAiTranslatorWidget } from "./components/ai-translator-widget.js";
 
@@ -83,9 +83,10 @@ function renderLoginScreen(onLogin) {
 
 // ── Init ──
 
-function bootstrap(userName) {
-  const seed = structuredClone(seedState);
-  if (userName) seed.userName = userName;
+function bootstrap(userName, { useLegacyDemo = false } = {}) {
+  const seed = useLegacyDemo
+    ? { ...structuredClone(seedState), userName }
+    : createEmptyLearningState(userName);
   const initialState = createHydratedState(seed);
   store = createStore(initialState, {
     persist(s) { persistState(s); },
@@ -143,11 +144,6 @@ function bootstrap(userName) {
 // ── Logout handler (called from profile) ──
 
 window.__logout = () => {
-  // Remove any stored key with old format too
-  try {
-    const keys = Object.keys(localStorage).filter(k => k.startsWith("review-system:v2:"));
-    keys.forEach(k => localStorage.removeItem(k));
-  } catch {}
   app.replaceChildren(renderLoginScreen(bootstrap));
 };
 
@@ -177,7 +173,7 @@ if (!savedName) {
 }
 
 if (savedName) {
-  bootstrap(savedName);
+  bootstrap(savedName, { useLegacyDemo: true });
 } else {
   app.replaceChildren(renderLoginScreen(bootstrap));
 }

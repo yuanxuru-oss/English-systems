@@ -104,8 +104,7 @@ export function renderProfile(store, navigate) {
 
   el.querySelector('[data-action="clear"]').addEventListener("click", () => {
     if (confirm("确定要清除所有本地学习数据吗？此操作不可恢复。")) {
-      localStorage.removeItem("review-system:v2");
-      localStorage.removeItem("review-system:v1");
+      localStorage.removeItem(`review-system:v2:${userName}`);
       location.reload();
     }
   });

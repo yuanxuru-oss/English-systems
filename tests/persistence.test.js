@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHydratedState, serializePersistedState, persistState, STORAGE_PREFIX, storageKey } from "../src/core/persistence.js";
-import { seedState } from "../src/data/seed.js";
+import { createEmptyLearningState, seedState } from "../src/data/seed.js";
 
 const TEST_USER = "test-user";
 const TEST_KEY = storageKey(TEST_USER);
@@ -96,4 +96,15 @@ test("no login = seed only, no persistence", () => {
   const hydrated = createHydratedState(seedState);
   assert.equal(hydrated.userName, seedState.userName);
   assert.equal(hydrated.checkin.isCheckedIn, false);
+});
+
+test("new learner workspace has no demo modules", () => {
+  const fresh = createEmptyLearningState("new-learner");
+
+  assert.equal(fresh.userName, "new-learner");
+  assert.equal(fresh.projects.length, 1);
+  assert.equal(fresh.projects[0].folders.length, 1);
+  assert.deepEqual(fresh.projects[0].folders[0].modules, []);
+  assert.deepEqual(fresh.flashcards, []);
+  assert.deepEqual(fresh.mistakes, []);
 });
