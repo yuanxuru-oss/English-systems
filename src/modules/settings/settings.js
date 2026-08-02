@@ -140,6 +140,16 @@ export function renderSettings(store, navigate) {
           <input type="password" class="settings-api-key-input" value="${settings.aiApiKey || ""}" placeholder="输入你的 API Key" />
           <button class="secondary-btn" data-action="save-api-key">保存 Key</button>
         </div>
+        <div class="settings-row" style="margin-top:14px">
+          <div class="settings-info">
+            <span class="settings-info-label">模型名称</span>
+            <span class="settings-info-desc">阿里云百炼初次测试建议使用 qwen-turbo。</span>
+          </div>
+        </div>
+        <div class="settings-storage-key-row">
+          <input type="text" class="settings-model-input" value="${settings.aiModel || "qwen-turbo"}" placeholder="qwen-turbo" />
+          <button class="secondary-btn" data-action="save-model">保存模型</button>
+        </div>
         <div class="settings-toggles" style="margin-top:14px">
           <label class="settings-toggle">
             <div>
@@ -240,6 +250,12 @@ export function renderSettings(store, navigate) {
       route: state.route,
     });
     alert(value ? "AI Key 已保存到当前浏览器。" : "已清空 AI Key。");
+  });
+
+  el.querySelector('[data-action="save-model"]')?.addEventListener("click", () => {
+    const value = el.querySelector(".settings-model-input")?.value?.trim() || "qwen-turbo";
+    store.actions.updateSettings({ aiModel: value });
+    alert(`AI 模型已设置为 ${value}。`);
   });
 
   // Export

@@ -15,6 +15,7 @@ export const seedState = {
     aiProvider: "dashscope",
     aiEndpoint: "",
     aiApiKey: "",
+    aiModel: "qwen-turbo",
     aiTranslationEnabled: true,
     aiTemplateEnabled: true,
     aiFloatingTranslateEnabled: true,

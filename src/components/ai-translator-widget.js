@@ -1,3 +1,5 @@
+import { translateWithAi } from "../core/ai-client.js";
+
 const POSITION_KEY = "review-system:v2:ai-translator-position";
 
 function getSelectionText() {
@@ -83,17 +85,9 @@ function buildResult(state, query, apiReady) {
     };
   }
 
-  if (!apiReady) {
-    return {
-      title: "本地词库未命中",
-      body: `“${query}” 目前不在你的本地词库中。\n\n你可以前往设置启用 AI 翻译，获得词义、例句和记忆提示。`,
-    };
-  }
-
-  return {
-    title: "AI 翻译服务已准备",
-    body: `已识别：${query}\n\n翻译结果会显示在这里。`,
-  };
+  return apiReady
+    ? { title: "准备查询 AI 翻译", body: `已识别：${query}\n\n点击“查询翻译”获取词义、例句和记忆提示。` }
+    : { title: "本地词库未命中", body: `“${query}” 目前不在你的本地词库中。\n\n你可以前往设置启用 AI 翻译，获得词义、例句和记忆提示。` };
 }
 
 function clampPosition(x, y, panel) {
@@ -224,14 +218,51 @@ export function syncAiTranslatorWidget(store, navigate) {
     input.value = selected;
     renderLookup(selected);
   };
-  panel.querySelector('[data-action="lookup"]').onclick = () => {
+  panel.querySelector('[data-action="lookup"]').onclick = async () => {
     const query = input.value.trim();
     store.track("ai_floating_lookup_submitted", {
       route: state.route,
       query_length: query.length,
       ai_ready: apiReady,
     });
-    renderLookup(query);
+    if (!query) {
+      renderLookup(query);
+      return;
+    }
+    const local = findLocalMeaning(store.getState(), query);
+    if (local) {
+      renderLookup(query);
+      return;
+    }
+    if (!store.getState().settings?.aiTranslationEnabled) {
+      titleEl.textContent = "AI 翻译已关闭";
+      resultEl.textContent = "请在设置中开启 AI 翻译辅助后再查询。";
+      return;
+    }
+    if (!store.getState().settings?.aiApiKey) {
+      titleEl.textContent = "还没有 API Key";
+      resultEl.textContent = "请先前往 AI 设置保存你自己的 API Key。";
+      return;
+    }
+
+    const button = panel.querySelector('[data-action="lookup"]');
+    button.disabled = true;
+    button.textContent = "查询中...";
+    titleEl.textContent = "正在查询 AI 翻译";
+    resultEl.textContent = "正在获取词义和例句，请稍候。";
+    try {
+      const result = await translateWithAi(query, store.getState().settings);
+      titleEl.textContent = `AI 翻译 · ${query}`;
+      resultEl.textContent = result;
+      store.track("ai_translation_succeeded", { route: store.getState().route, query_length: query.length });
+    } catch (error) {
+      titleEl.textContent = "AI 翻译未完成";
+      resultEl.textContent = error?.message || "请求失败，请稍后重试。";
+      store.track("ai_translation_failed", { route: store.getState().route, query_length: query.length });
+    } finally {
+      button.disabled = false;
+      button.textContent = "查询翻译";
+    }
   };
 
   input.onkeydown = (event) => {
