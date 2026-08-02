@@ -11,9 +11,12 @@ if (!/^\d+\.\d+\.\d+$/.test(version)) {
 
 function replaceVersion(filePath, pattern, replacement) {
   const content = fs.readFileSync(filePath, "utf8");
+  if (!pattern.test(content)) {
+    throw new Error(`Could not find a version field in ${filePath}`);
+  }
+  pattern.lastIndex = 0;
   const next = content.replace(pattern, replacement);
-  if (next === content) throw new Error(`Could not sync version in ${filePath}`);
-  fs.writeFileSync(filePath, next);
+  if (next !== content) fs.writeFileSync(filePath, next);
 }
 
 replaceVersion(
