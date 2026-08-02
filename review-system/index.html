@@ -6831,6 +6831,16 @@ function renderSettings(store, navigate) {
           <input type="password" class="settings-api-key-input" value="${settings.aiApiKey || ""}" placeholder="输入你的 API Key" />
           <button class="secondary-btn" data-action="save-api-key">保存 Key</button>
         </div>
+        <div class="settings-row" style="margin-top:14px">
+          <div class="settings-info">
+            <span class="settings-info-label">模型名称</span>
+            <span class="settings-info-desc">阿里云百炼初次测试建议使用 qwen-turbo。</span>
+          </div>
+        </div>
+        <div class="settings-storage-key-row">
+          <input type="text" class="settings-model-input" value="${settings.aiModel || "qwen-turbo"}" placeholder="qwen-turbo" />
+          <button class="secondary-btn" data-action="save-model">保存模型</button>
+        </div>
         <div class="settings-toggles" style="margin-top:14px">
           <label class="settings-toggle">
             <div>
@@ -6931,6 +6941,12 @@ function renderSettings(store, navigate) {
       route: state.route,
     });
     alert(value ? "AI Key 已保存到当前浏览器。" : "已清空 AI Key。");
+  });
+
+  el.querySelector('[data-action="save-model"]')?.addEventListener("click", () => {
+    const value = el.querySelector(".settings-model-input")?.value?.trim() || "qwen-turbo";
+    store.actions.updateSettings({ aiModel: value });
+    alert(`AI 模型已设置为 ${value}。`);
   });
 
   // Export
@@ -7327,6 +7343,7 @@ const seedState = {
     aiProvider: "dashscope",
     aiEndpoint: "",
     aiApiKey: "",
+    aiModel: "qwen-turbo",
     aiTranslationEnabled: true,
     aiTemplateEnabled: true,
     aiFloatingTranslateEnabled: true,
@@ -7709,6 +7726,62 @@ function track(name, properties = {}) {
   adapter.track(name, properties);
 }
 
+const DASHSCOPE_ENDPOINT = "https://dashscope.aliyuncs.com/compatible-mode/v1";
+
+function resolveAiEndpoint(settings = {}) {
+  const base = settings.aiProvider === "custom" && settings.aiEndpoint
+    ? settings.aiEndpoint.trim()
+    : DASHSCOPE_ENDPOINT;
+  return `${base.replace(/\/+$/, "")}/chat/completions`;
+}
+
+function buildTranslationMessages(query) {
+  return [
+    {
+      role: "system",
+      content: "You are an English learning assistant. Reply in concise Chinese. For a word or phrase, give: 1) part of speech, 2) Chinese meaning, 3) one short English example with Chinese translation, 4) a memorable usage tip. Do not use Markdown tables.",
+    },
+    {
+      role: "user",
+      content: `Please explain and translate: ${query}`,
+    },
+  ];
+}
+
+async function translateWithAi(query, settings, request = globalThis.fetch) {
+  const apiKey = settings?.aiApiKey?.trim();
+  if (!apiKey) throw new Error("请先在设置中保存 API Key。");
+  if (typeof request !== "function") throw new Error("当前环境不支持 AI 请求。");
+
+  let response;
+  try {
+    response = await request(resolveAiEndpoint(settings), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: settings?.aiModel?.trim() || "qwen-turbo",
+        messages: buildTranslationMessages(query),
+        temperature: 0.3,
+      }),
+    });
+  } catch {
+    throw new Error("无法连接 AI 服务。请检查网络、接口地址，或确认该服务允许浏览器直接调用。");
+  }
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data?.error?.message || `AI 服务返回错误（${response.status}）。`);
+  }
+
+  const content = data?.choices?.[0]?.message?.content?.trim();
+  if (!content) throw new Error("AI 未返回可显示的翻译结果，请稍后重试。");
+  return content;
+}
+
+
 const POSITION_KEY = "review-system:v2:ai-translator-position";
 
 function getSelectionText() {
@@ -7794,17 +7867,9 @@ function buildResult(state, query, apiReady) {
     };
   }
 
-  if (!apiReady) {
-    return {
-      title: "本地词库未命中",
-      body: `“${query}” 目前不在你的本地词库中。\n\n你可以前往设置启用 AI 翻译，获得词义、例句和记忆提示。`,
-    };
-  }
-
-  return {
-    title: "AI 翻译服务已准备",
-    body: `已识别：${query}\n\n翻译结果会显示在这里。`,
-  };
+  return apiReady
+    ? { title: "准备查询 AI 翻译", body: `已识别：${query}\n\n点击“查询翻译”获取词义、例句和记忆提示。` }
+    : { title: "本地词库未命中", body: `“${query}” 目前不在你的本地词库中。\n\n你可以前往设置启用 AI 翻译，获得词义、例句和记忆提示。` };
 }
 
 function clampPosition(x, y, panel) {
@@ -7935,14 +8000,51 @@ function syncAiTranslatorWidget(store, navigate) {
     input.value = selected;
     renderLookup(selected);
   };
-  panel.querySelector('[data-action="lookup"]').onclick = () => {
+  panel.querySelector('[data-action="lookup"]').onclick = async () => {
     const query = input.value.trim();
     store.track("ai_floating_lookup_submitted", {
       route: state.route,
       query_length: query.length,
       ai_ready: apiReady,
     });
-    renderLookup(query);
+    if (!query) {
+      renderLookup(query);
+      return;
+    }
+    const local = findLocalMeaning(store.getState(), query);
+    if (local) {
+      renderLookup(query);
+      return;
+    }
+    if (!store.getState().settings?.aiTranslationEnabled) {
+      titleEl.textContent = "AI 翻译已关闭";
+      resultEl.textContent = "请在设置中开启 AI 翻译辅助后再查询。";
+      return;
+    }
+    if (!store.getState().settings?.aiApiKey) {
+      titleEl.textContent = "还没有 API Key";
+      resultEl.textContent = "请先前往 AI 设置保存你自己的 API Key。";
+      return;
+    }
+
+    const button = panel.querySelector('[data-action="lookup"]');
+    button.disabled = true;
+    button.textContent = "查询中...";
+    titleEl.textContent = "正在查询 AI 翻译";
+    resultEl.textContent = "正在获取词义和例句，请稍候。";
+    try {
+      const result = await translateWithAi(query, store.getState().settings);
+      titleEl.textContent = `AI 翻译 · ${query}`;
+      resultEl.textContent = result;
+      store.track("ai_translation_succeeded", { route: store.getState().route, query_length: query.length });
+    } catch (error) {
+      titleEl.textContent = "AI 翻译未完成";
+      resultEl.textContent = error?.message || "请求失败，请稍后重试。";
+      store.track("ai_translation_failed", { route: store.getState().route, query_length: query.length });
+    } finally {
+      button.disabled = false;
+      button.textContent = "查询翻译";
+    }
   };
 
   input.onkeydown = (event) => {
