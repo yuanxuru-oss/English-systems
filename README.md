@@ -1,167 +1,82 @@
-# 🐟 鱼骨头英语复习系统
+# 鱼骨头英语复习系统
 
 > 把英语啃的只剩鱼骨头。
 
-一个面向英语训练的纯前端复习系统。以项目为中心，按试卷文件夹组织学习内容，支持听力、阅读、翻译、词汇、闪卡、错题等模块，数据完全本地化，无需后端。
+一个为个人复习设计的英语学习系统。把自己的试题、单词和听力材料导入后，即可在同一个地方完成练习、整理错题、记忆词汇和记录学习进度。
 
-**[🔗 在线使用](https://yuanxuru-oss.github.io/English-systems/review-system/)**
+## 开始使用
 
-在线版与桌面版均只在用户自己的设备保存学习数据。需要在两个版本或不同设备之间迁移时，请使用设置页的「导出学习数据」和「导入学习数据」。
+- [在线使用](https://yuanxuru-oss.github.io/English-systems/review-system/)
+- [下载 Windows 桌面版](https://github.com/yuanxuru-oss/English-systems/releases)
 
----
+桌面版下载 `review_atelier.exe` 后即可直接打开，无需安装开发环境。
 
-## ✨ 功能
+## 可以做什么
 
-| 模块 | 说明 |
-|------|------|
-| 📋 **仪表盘** | 复习流程步骤条（鱼骨进度）、今日打卡、错题统计 |
-| 📁 **项目总览** | 文件夹式管理，支持新建/重命名/删除文件夹和模块 |
-| 📥 **导入中心** | 模板快速导入听力、阅读、翻译、词汇等内容 |
-| 🎧 **听力练习** | 音频播放器 + 精听训练层（挖空、关键词高亮） |
-| 📖 **阅读练习** | 填空练习 + 阅读理解，支持切换模式 |
-| ✍️ **翻译练习** | 中译英，答案核对含关键词匹配率评分 |
-| 📝 **词汇表** | 单词列表 + 标记掌握 + 一键加入闪卡 |
-| 🃏 **闪卡词库** | 卡片翻转记忆 |
-| 📋 **错题笔记** | 错题汇总，支持笔记、再练、掌握状态追踪 |
-| 📅 **打卡日历** | 完成学习动作自动打卡，打卡印章动画 |
-| 🎨 **主题色系** | 5 套主题：基础色 / 暗夜 / 森林绿 / 海洋蓝 / 樱花粉 |
-| ⚙️ **设置** | 自定义存储键、导出/导入数据、每日提醒 |
-| 📝 **随手笔记** | `Ctrl+Shift+N` 弹窗，自动保存 |
+| 功能 | 用途 |
+| --- | --- |
+| 项目与文件夹 | 按考试、课程或复习计划整理资料 |
+| 导入中心 | 用模板导入阅读、听力、翻译和词汇内容 |
+| 听力练习 | 播放音频、查看原文并进行挖空精听 |
+| 阅读与翻译 | 完成题目、核对答案并标记需要再练的内容 |
+| 词汇与闪卡 | 收集生词，用翻转卡片重复记忆 |
+| 错题笔记 | 自动回收错题，补充自己的复盘笔记 |
+| 打卡日历 | 查看每日完成情况和连续学习记录 |
+| AI 翻译入口 | 随时查询单词或短句，是否启用可在设置中调整 |
 
-### 🐟 鱼骨进度
+## 推荐流程
 
-首页复习流程步骤条：每完成一个模块，对应步骤亮起。六个模块全部完成后，鱼骨头 logo 亮起霓虹灯效果。
+1. 在「导入中心」添加自己的复习内容。
+2. 从听力、阅读、翻译或词汇模块开始练习。
+3. 将不熟悉的题目和单词加入错题、词汇表或闪卡。
+4. 在首页和打卡日历查看当天进度，再安排下一次复习。
 
-```
-🐟(logo) → 🎧听力 → 📖阅读 → ✍️翻译 → 📝词汇 → 🃏闪卡 → 📋错题
-```
+## 数据与备份
 
----
+学习内容和进度默认只保存在当前设备中，不会自动上传到服务器。
 
-## 🛠 技术栈
+- 在线版与桌面版的数据彼此独立。
+- 更换电脑、浏览器或在两个版本之间迁移时，请前往「设置」使用「导出学习数据」保存 JSON 文件。
+- 在新设备的「设置」中选择「导入学习数据」即可恢复。
+- 清除浏览器数据或卸载桌面程序前，请先导出备份。
 
-- **Vanilla JavaScript** (ES Modules)
-- **localStorage** 持久化，键 `review-system:v2`
-- **Node built-in test runner** (TDD)
-- **单文件构建** — 所有 JS/CSS 内联为一个 HTML
-- **dist 桌面构建产物** — 供 Tauri 打包使用
-- **Tauri 桌面壳骨架** — 供本地桌面应用迭代
-- **GitHub Pages** 部署
+## 版本说明
 
----
+版本号格式为 `主版本.功能版本.修复版本`，例如 `1.2.0`：
 
-## 🚀 本地运行
+- `1.2.1`：修复问题、优化小细节。
+- `1.3.0`：加入新的学习功能。
+- `2.0.0`：学习流程或系统结构有明显更新。
 
-```bash
-# 克隆仓库
-git clone https://github.com/yuanxuru-oss/English-systems.git
-cd English-systems
+最新版本和下载记录请查看 [Releases](https://github.com/yuanxuru-oss/English-systems/releases)。
 
-# 直接用浏览器打开
-start index.html
+## 常见问题
 
-# 或启动本地服务器
-npx serve .
-```
+**在线版打不开或没有更新？**
 
----
+请刷新页面，或使用浏览器的无痕窗口重新打开。GitHub Pages 发布后可能需要等待几分钟。
 
-## 🧪 测试
+**我可以导入自己的 CET 试题吗？**
 
-```bash
-node --test tests/*.test.js
-```
+可以。进入「导入中心」，根据页面中的模板整理题目并导入。听力材料可搭配音频和原文使用精听训练。
 
----
+**桌面版和在线版哪个更适合我？**
 
-## 📦 构建部署
+两者功能一致。希望随时从浏览器打开可使用在线版；希望将学习系统固定在电脑上、离线打开可选择桌面版。
+
+## 开发与发布
+
+此部分供维护项目时使用。版本号只修改 `package.json`；构建时会自动同步到桌面端配置。
 
 ```bash
-# 生成单文件预览
-node build-preview.cjs
-
-# 输出:
-# - preview.html（可直接部署到任意静态托管）
-# - dist/index.html（供 Tauri 打包）
+npm install
+npm run test
+npm run build
+npm run tauri:build
 ```
 
-## 🚀 发布版本
+- 推送 `main`：更新在线版。
+- 推送 `v1.2.0` 形式的版本标签：创建对应版本的 Windows EXE 发布页。
+- 桌面端打包依赖请参考 [TAURI-SETUP.md](TAURI-SETUP.md)。
 
-版本号只在 `package.json` 修改，使用 `主版本.功能版本.修复版本`：
-
-- `1.2.1`：修复问题或微调体验
-- `1.3.0`：新增学习者可用的功能
-- `2.0.0`：产品架构发生明显变化
-
-推送 `main` 会自动更新在线版；推送 `v1.2.0` 形式的 Git 标签会自动生成 Windows EXE，并发布到 GitHub Releases。
-
-## Desktop Packaging
-
-This repo now includes a Tauri-ready structure under `src-tauri/`.
-
-Before packaging on Windows, install the official Tauri prerequisites:
-- Rust / Cargo
-- Visual Studio C++ build tools
-
-Docs:
-- [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/)
-- [Tauri Windows bundling](https://v2.tauri.app/distribute/windows-installer/)
-
----
-
-## 📂 项目结构
-
-```
-review-system/
-├── index.html              # 入口 HTML
-├── build-preview.js        # 构建脚本
-├── .gitignore
-├── src/
-│   ├── app.js              # 路由 & 应用初始化
-│   ├── core/
-│   │   ├── store.js        # 状态管理
-│   │   ├── persistence.js  # localStorage 持久化
-│   │   ├── parser.js       # 内容解析器
-│   │   ├── highlighter.js  # 关键词高亮
-│   │   └── checkin.js      # 打卡逻辑
-│   ├── data/
-│   │   └── seed.js         # 初始种子数据
-│   ├── components/
-│   │   ├── layout/app-shell.js  # 侧边栏 + 顶栏布局
-│   │   ├── audio-player.js      # 音频播放器
-│   │   ├── icons.js             # SVG 图标系统
-│   │   ├── quick-note.js        # 随手笔记
-│   │   └── fish-progress.js     # 鱼骨进度步骤条
-│   ├── modules/
-│   │   ├── dashboard/      # 仪表盘
-│   │   ├── project/        # 项目总览
-│   │   ├── import/         # 导入中心
-│   │   ├── listening/      # 听力练习 + 精听层
-│   │   ├── reading/        # 阅读练习
-│   │   ├── translation/    # 翻译练习
-│   │   ├── vocabulary/     # 词汇表
-│   │   ├── flashcards/     # 闪卡词库
-│   │   ├── mistakes/       # 错题笔记
-│   │   ├── checkin/        # 打卡日历
-│   │   ├── profile/        # 个人中心
-│   │   ├── settings/       # 设置
-│   │   └── shared/         # 共享组件
-│   └── styles/
-│       ├── base.css        # CSS 变量 & 主题
-│       ├── theme.css       # 布局 & 组件样式
-│       ├── components.css  # 通用组件
-│       └── modules.css     # 模块样式
-└── tests/
-    ├── store.test.js
-    ├── persistence.test.js
-    ├── parser.test.js
-    ├── highlighter.test.js
-    └── plan-preview.test.js
-```
-
----
-
-## 📄 License
-
-
-<p align="center">🐟 — 啃完英语，只剩鱼骨头 — 🦴</p>
+<p align="center">啃完英语，只剩鱼骨头。</p>
