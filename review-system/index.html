@@ -6704,6 +6704,7 @@ const COLOR_THEMES = [
 ];
 
 const AI_PROVIDERS = [
+  { value: "proxy", label: "安全代理", desc: "在线版推荐，不在浏览器保存 API Key" },
   { value: "dashscope", label: "阿里云百炼", desc: "推荐用于翻译和题目整理" },
   { value: "custom", label: "自定义平台", desc: "使用你自己的 AI 服务" },
 ];
@@ -6720,6 +6721,7 @@ function renderSection(title, content) {
 function renderSettings(store, navigate) {
   const state = store.getState();
   const settings = state.settings || {};
+  const usesProxy = settings.aiProvider === "proxy";
   const el = document.createElement("div");
   el.className = "stack-layout";
   const _sk = getKey(state);
@@ -6814,14 +6816,19 @@ function renderSettings(store, navigate) {
         <div class="settings-row" style="margin-top:14px">
           <div class="settings-info">
             <span class="settings-info-label">API 地址</span>
-            <span class="settings-info-desc">使用自定义平台时填写接口地址；阿里云百炼可保留为空。</span>
+            <span class="settings-info-desc">安全代理填写 Worker 地址；自定义平台填写接口地址；阿里云百炼可保留为空。</span>
           </div>
         </div>
         <div class="settings-storage-key-row">
-          <input type="text" class="settings-endpoint-input" value="${settings.aiEndpoint || ""}" placeholder="例如：https://dashscope.aliyuncs.com/compatible-mode/v1" />
+          <input type="text" class="settings-endpoint-input" value="${settings.aiEndpoint || ""}" placeholder="${usesProxy ? "例如：https://fishbone-ai.<你的域名>.workers.dev" : "例如：https://dashscope.aliyuncs.com/compatible-mode/v1"}" />
           <button class="secondary-btn" data-action="save-endpoint">保存地址</button>
         </div>
-        <div class="settings-row" style="margin-top:14px">
+        ${usesProxy ? `
+        <div class="settings-info" style="margin-top:14px">
+          <span class="settings-info-label">已启用安全代理</span>
+          <span class="settings-info-desc">API Key 保存在代理服务中，在线版不需要也不会保存 Key。</span>
+        </div>
+        ` : `<div class="settings-row" style="margin-top:14px">
           <div class="settings-info">
             <span class="settings-info-label">API Key</span>
             <span class="settings-info-desc">仅保存在当前浏览器，用于你自己的 AI 功能调用。</span>
@@ -6841,6 +6848,7 @@ function renderSettings(store, navigate) {
           <input type="text" class="settings-model-input" value="${settings.aiModel || "qwen-turbo"}" placeholder="qwen-turbo" />
           <button class="secondary-btn" data-action="save-model">保存模型</button>
         </div>
+        `}
         <div class="settings-toggles" style="margin-top:14px">
           <label class="settings-toggle">
             <div>
@@ -7340,7 +7348,7 @@ const seedState = {
     dailyReminder: false,
     reminderTime: "20:00",
     fishSteps: [],
-    aiProvider: "dashscope",
+    aiProvider: "proxy",
     aiEndpoint: "",
     aiApiKey: "",
     aiModel: "qwen-turbo",
@@ -7729,6 +7737,11 @@ function track(name, properties = {}) {
 const DASHSCOPE_ENDPOINT = "https://dashscope.aliyuncs.com/compatible-mode/v1";
 
 function resolveAiEndpoint(settings = {}) {
+  if (settings.aiProvider === "proxy") {
+    const base = settings.aiEndpoint?.trim();
+    if (!base) throw new Error("请先在设置中填写 AI 代理地址。");
+    return `${base.replace(/\/+$/, "")}/translate`;
+  }
   const base = settings.aiProvider === "custom" && settings.aiEndpoint
     ? settings.aiEndpoint.trim()
     : DASHSCOPE_ENDPOINT;
@@ -7750,22 +7763,26 @@ function buildTranslationMessages(query) {
 
 async function translateWithAi(query, settings, request = globalThis.fetch) {
   const apiKey = settings?.aiApiKey?.trim();
-  if (!apiKey) throw new Error("请先在设置中保存 API Key。");
+  const usingProxy = settings?.aiProvider === "proxy";
+  if (!usingProxy && !apiKey) throw new Error("请先在设置中保存 API Key。");
   if (typeof request !== "function") throw new Error("当前环境不支持 AI 请求。");
 
   let response;
   try {
-    response = await request(resolveAiEndpoint(settings), {
+    const endpoint = resolveAiEndpoint(settings);
+    response = await request(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        ...(usingProxy ? {} : { Authorization: `Bearer ${apiKey}` }),
       },
-      body: JSON.stringify({
-        model: settings?.aiModel?.trim() || "qwen-turbo",
-        messages: buildTranslationMessages(query),
-        temperature: 0.3,
-      }),
+      body: JSON.stringify(usingProxy
+        ? { query }
+        : {
+            model: settings?.aiModel?.trim() || "qwen-turbo",
+            messages: buildTranslationMessages(query),
+            temperature: 0.3,
+          }),
     });
   } catch {
     throw new Error("无法连接 AI 服务。请检查网络、接口地址，或确认该服务允许浏览器直接调用。");
@@ -7776,7 +7793,7 @@ async function translateWithAi(query, settings, request = globalThis.fetch) {
     throw new Error(data?.error?.message || `AI 服务返回错误（${response.status}）。`);
   }
 
-  const content = data?.choices?.[0]?.message?.content?.trim();
+  const content = usingProxy ? data?.content?.trim() : data?.choices?.[0]?.message?.content?.trim();
   if (!content) throw new Error("AI 未返回可显示的翻译结果，请稍后重试。");
   return content;
 }
