@@ -13,6 +13,7 @@ const COLOR_THEMES = [
 ];
 
 const AI_PROVIDERS = [
+  { value: "proxy", label: "安全代理", desc: "在线版推荐，不在浏览器保存 API Key" },
   { value: "dashscope", label: "阿里云百炼", desc: "推荐用于翻译和题目整理" },
   { value: "custom", label: "自定义平台", desc: "使用你自己的 AI 服务" },
 ];
@@ -29,6 +30,7 @@ function renderSection(title, content) {
 export function renderSettings(store, navigate) {
   const state = store.getState();
   const settings = state.settings || {};
+  const usesProxy = settings.aiProvider === "proxy";
   const el = document.createElement("div");
   el.className = "stack-layout";
   const _sk = getKey(state);
@@ -123,14 +125,19 @@ export function renderSettings(store, navigate) {
         <div class="settings-row" style="margin-top:14px">
           <div class="settings-info">
             <span class="settings-info-label">API 地址</span>
-            <span class="settings-info-desc">使用自定义平台时填写接口地址；阿里云百炼可保留为空。</span>
+            <span class="settings-info-desc">安全代理填写 Worker 地址；自定义平台填写接口地址；阿里云百炼可保留为空。</span>
           </div>
         </div>
         <div class="settings-storage-key-row">
-          <input type="text" class="settings-endpoint-input" value="${settings.aiEndpoint || ""}" placeholder="例如：https://dashscope.aliyuncs.com/compatible-mode/v1" />
+          <input type="text" class="settings-endpoint-input" value="${settings.aiEndpoint || ""}" placeholder="${usesProxy ? "例如：https://fishbone-ai.<你的域名>.workers.dev" : "例如：https://dashscope.aliyuncs.com/compatible-mode/v1"}" />
           <button class="secondary-btn" data-action="save-endpoint">保存地址</button>
         </div>
-        <div class="settings-row" style="margin-top:14px">
+        ${usesProxy ? `
+        <div class="settings-info" style="margin-top:14px">
+          <span class="settings-info-label">已启用安全代理</span>
+          <span class="settings-info-desc">API Key 保存在代理服务中，在线版不需要也不会保存 Key。</span>
+        </div>
+        ` : `<div class="settings-row" style="margin-top:14px">
           <div class="settings-info">
             <span class="settings-info-label">API Key</span>
             <span class="settings-info-desc">仅保存在当前浏览器，用于你自己的 AI 功能调用。</span>
@@ -150,6 +157,7 @@ export function renderSettings(store, navigate) {
           <input type="text" class="settings-model-input" value="${settings.aiModel || "qwen-turbo"}" placeholder="qwen-turbo" />
           <button class="secondary-btn" data-action="save-model">保存模型</button>
         </div>
+        `}
         <div class="settings-toggles" style="margin-top:14px">
           <label class="settings-toggle">
             <div>

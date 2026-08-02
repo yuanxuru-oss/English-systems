@@ -1,0 +1,6 @@
+name = "fishbone-ai"
+main = "src/index.js"
+compatibility_date = "2026-08-02"
+
+[vars]
+DASHSCOPE_MODEL = "qwen-turbo"

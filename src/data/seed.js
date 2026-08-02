@@ -12,7 +12,7 @@ export const seedState = {
     dailyReminder: false,
     reminderTime: "20:00",
     fishSteps: [],
-    aiProvider: "dashscope",
+    aiProvider: "proxy",
     aiEndpoint: "",
     aiApiKey: "",
     aiModel: "qwen-turbo",
