@@ -1,6 +1,6 @@
 {
   "name": "review-atelier",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "type": "module",
   "description": "A local-first English review system designed for packaging and iterative desktop releases.",
