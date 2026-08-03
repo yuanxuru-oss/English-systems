@@ -104,14 +104,35 @@ export function createAppShell(store, navigate) {
         <div>
           <h2>${project?.title ?? "英语复习"}</h2>
         </div>
-        <div class="checkin-state ${state.checkin.isCheckedIn ? "is-checked" : ""}">
-          ${state.checkin.isCheckedIn
-            ? '<span class="fishbone-stamp"><img src="' + fishboneDataUri + '" alt="打卡印章" /></span> 今日已打卡'
-            : "今日未打卡"}
+        <div class="topbar-actions">
+          <button class="help-button" type="button" data-action="open-help" aria-label="打开使用帮助" title="使用帮助">${icon("help")}</button>
+          <div class="checkin-state ${state.checkin.isCheckedIn ? "is-checked" : ""}">
+            ${state.checkin.isCheckedIn
+              ? '<span class="fishbone-stamp"><img src="' + fishboneDataUri + '" alt="打卡印章" /></span> 今日已打卡'
+              : "今日未打卡"}
+          </div>
         </div>
       </header>
       <section data-shell-content></section>
     </main>
+    <div class="onboarding-backdrop" data-onboarding hidden>
+      <section class="onboarding-panel paper-panel" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+        <button class="onboarding-close" type="button" data-action="close-help" aria-label="关闭使用帮助">${icon("close")}</button>
+        <p class="label">START HERE</p>
+        <h3 id="onboarding-title">从第一份资料开始</h3>
+        <p class="onboarding-intro">用四步把资料变成自己的复习节奏。</p>
+        <ol class="onboarding-steps">
+          <li><span>01</span><div><strong>导入内容</strong><small>在导入中心粘贴题目、词汇或听力原文。</small></div></li>
+          <li><span>02</span><div><strong>开始练习</strong><small>选择听力、阅读、翻译或词汇，完成一项即可点亮今天。</small></div></li>
+          <li><span>03</span><div><strong>回收错题与生词</strong><small>把不熟悉的内容整理进错题笔记和闪卡。</small></div></li>
+          <li><span>04</span><div><strong>打卡并备份</strong><small>在设置中导出学习数据，换设备也能继续复习。</small></div></li>
+        </ol>
+        <div class="hero-actions onboarding-actions">
+          <button class="primary-btn" type="button" data-action="go-import">去导入第一份资料</button>
+          <button class="secondary-btn" type="button" data-action="close-help">稍后再说</button>
+        </div>
+      </section>
+    </div>
   `;
 
   shell.querySelectorAll("[data-route]").forEach((button) => {
@@ -127,6 +148,23 @@ export function createAppShell(store, navigate) {
     shell.querySelector(".sidebar-toggle")?.setAttribute("aria-expanded", String(isOpen));
   });
   shell.querySelector(".sidebar-close")?.addEventListener("click", closeSidebar);
+
+  const onboarding = shell.querySelector("[data-onboarding]");
+  const closeHelp = () => {
+    onboarding.hidden = true;
+    store.actions.updateSettings({ onboardingSeen: true });
+  };
+  const openHelp = () => { onboarding.hidden = false; };
+  shell.querySelector('[data-action="open-help"]')?.addEventListener("click", openHelp);
+  shell.querySelectorAll('[data-action="close-help"]').forEach((button) => button.addEventListener("click", closeHelp));
+  shell.querySelector('[data-action="go-import"]')?.addEventListener("click", () => {
+    closeHelp();
+    navigate("import");
+  });
+  onboarding.addEventListener("click", (event) => {
+    if (event.target === onboarding) closeHelp();
+  });
+  if (!state.settings?.onboardingSeen) openHelp();
 
   return shell;
 }

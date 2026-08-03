@@ -101,6 +101,13 @@ const iconSet = {
       <path d="m7 7 10 10M17 7 7 17" stroke-linecap="round" />
     </svg>
   `,
+  help: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9.4 9.2c.2-1.5 1.4-2.5 3-2.5 1.8 0 3.1 1.1 3.1 2.7 0 1.3-.8 2.1-2 2.8-1 .6-1.5 1.2-1.5 2.4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M12 17.8h.01" stroke-linecap="round" stroke-width="2.4" />
+      <circle cx="12" cy="12" r="8.4" stroke-linecap="round" />
+    </svg>
+  `,
   arrowRight: `
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M9 6.5 14.8 12 9 17.5" stroke-linecap="round" stroke-linejoin="round" />
