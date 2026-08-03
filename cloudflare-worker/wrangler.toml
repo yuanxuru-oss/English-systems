@@ -7,4 +7,4 @@ DASHSCOPE_MODEL = "qwen-turbo"
 
 [[kv_namespaces]]
 binding = "USAGE"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+id = "2e0e3f9255a145f1aae7dd21479d8d76"
