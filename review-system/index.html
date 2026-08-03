@@ -179,6 +179,108 @@ mark {
   border-radius: 14px 17px 13px 16px;
 }
 
+.help-button {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed color-mix(in srgb, var(--accent) 52%, transparent);
+  border-radius: 50% 46% 52% 48%;
+  background: var(--paper);
+  color: var(--accent);
+  padding: 0;
+}
+
+.help-button .nav-icon,
+.help-button .nav-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.help-button:hover {
+  background: var(--accent-soft);
+  transform: rotate(-4deg) translateY(-1px);
+}
+
+.topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.onboarding-backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(35, 31, 26, 0.34);
+  backdrop-filter: blur(3px);
+}
+
+.onboarding-backdrop[hidden] { display: none; }
+
+.onboarding-panel {
+  width: min(600px, 100%);
+  padding: 32px;
+  overflow: visible;
+}
+
+.onboarding-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-subtle);
+  border-radius: 13px 17px 12px 16px;
+  background: var(--paper);
+  color: var(--muted);
+}
+
+.onboarding-intro { color: var(--muted); margin: 0 0 18px; }
+
+.onboarding-steps {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.onboarding-steps li {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 13px;
+  border: 1px dashed var(--border-subtle);
+  border-radius: 18px 15px 20px 16px;
+  background: color-mix(in srgb, var(--paper) 88%, var(--accent-soft));
+}
+
+.onboarding-steps li > span {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  color: var(--accent);
+  font-family: "Times New Roman", serif;
+  font-size: .72rem;
+}
+
+.onboarding-steps strong,
+.onboarding-steps small { display: block; }
+.onboarding-steps small { margin-top: 3px; color: var(--muted); line-height: 1.5; }
+.onboarding-actions { margin-top: 20px; }
+
 .sidebar-toggle .nav-icon,
 .sidebar-close .nav-icon {
   color: var(--accent);
@@ -596,6 +698,9 @@ mark {
     white-space: nowrap;
   }
 
+  .topbar-actions { margin-left: auto; flex: 0 0 auto; }
+  .help-button { flex: 0 0 auto; }
+
   .fishbone-stamp {
     display: none;
   }
@@ -628,6 +733,9 @@ mark {
   .checkin-state {
     display: none;
   }
+
+  .onboarding-panel { padding: 24px 20px; }
+  .onboarding-actions { grid-template-columns: 1fr; }
 
   .hero-actions {
     display: grid;
@@ -4183,6 +4291,13 @@ const iconSet = {
       <path d="m7 7 10 10M17 7 7 17" stroke-linecap="round" />
     </svg>
   `,
+  help: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9.4 9.2c.2-1.5 1.4-2.5 3-2.5 1.8 0 3.1 1.1 3.1 2.7 0 1.3-.8 2.1-2 2.8-1 .6-1.5 1.2-1.5 2.4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M12 17.8h.01" stroke-linecap="round" stroke-width="2.4" />
+      <circle cx="12" cy="12" r="8.4" stroke-linecap="round" />
+    </svg>
+  `,
   arrowRight: `
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M9 6.5 14.8 12 9 17.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -4351,14 +4466,35 @@ function createAppShell(store, navigate) {
         <div>
           <h2>${project?.title ?? "英语复习"}</h2>
         </div>
-        <div class="checkin-state ${state.checkin.isCheckedIn ? "is-checked" : ""}">
-          ${state.checkin.isCheckedIn
-            ? '<span class="fishbone-stamp"><img src="' + fishboneDataUri + '" alt="打卡印章" /></span> 今日已打卡'
-            : "今日未打卡"}
+        <div class="topbar-actions">
+          <button class="help-button" type="button" data-action="open-help" aria-label="打开使用帮助" title="使用帮助">${icon("help")}</button>
+          <div class="checkin-state ${state.checkin.isCheckedIn ? "is-checked" : ""}">
+            ${state.checkin.isCheckedIn
+              ? '<span class="fishbone-stamp"><img src="' + fishboneDataUri + '" alt="打卡印章" /></span> 今日已打卡'
+              : "今日未打卡"}
+          </div>
         </div>
       </header>
       <section data-shell-content></section>
     </main>
+    <div class="onboarding-backdrop" data-onboarding hidden>
+      <section class="onboarding-panel paper-panel" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+        <button class="onboarding-close" type="button" data-action="close-help" aria-label="关闭使用帮助">${icon("close")}</button>
+        <p class="label">START HERE</p>
+        <h3 id="onboarding-title">从第一份资料开始</h3>
+        <p class="onboarding-intro">用四步把资料变成自己的复习节奏。</p>
+        <ol class="onboarding-steps">
+          <li><span>01</span><div><strong>导入内容</strong><small>在导入中心粘贴题目、词汇或听力原文。</small></div></li>
+          <li><span>02</span><div><strong>开始练习</strong><small>选择听力、阅读、翻译或词汇，完成一项即可点亮今天。</small></div></li>
+          <li><span>03</span><div><strong>回收错题与生词</strong><small>把不熟悉的内容整理进错题笔记和闪卡。</small></div></li>
+          <li><span>04</span><div><strong>打卡并备份</strong><small>在设置中导出学习数据，换设备也能继续复习。</small></div></li>
+        </ol>
+        <div class="hero-actions onboarding-actions">
+          <button class="primary-btn" type="button" data-action="go-import">去导入第一份资料</button>
+          <button class="secondary-btn" type="button" data-action="close-help">稍后再说</button>
+        </div>
+      </section>
+    </div>
   `;
 
   shell.querySelectorAll("[data-route]").forEach((button) => {
@@ -4374,6 +4510,23 @@ function createAppShell(store, navigate) {
     shell.querySelector(".sidebar-toggle")?.setAttribute("aria-expanded", String(isOpen));
   });
   shell.querySelector(".sidebar-close")?.addEventListener("click", closeSidebar);
+
+  const onboarding = shell.querySelector("[data-onboarding]");
+  const closeHelp = () => {
+    onboarding.hidden = true;
+    store.actions.updateSettings({ onboardingSeen: true });
+  };
+  const openHelp = () => { onboarding.hidden = false; };
+  shell.querySelector('[data-action="open-help"]')?.addEventListener("click", openHelp);
+  shell.querySelectorAll('[data-action="close-help"]').forEach((button) => button.addEventListener("click", closeHelp));
+  shell.querySelector('[data-action="go-import"]')?.addEventListener("click", () => {
+    closeHelp();
+    navigate("import");
+  });
+  onboarding.addEventListener("click", (event) => {
+    if (event.target === onboarding) closeHelp();
+  });
+  if (!state.settings?.onboardingSeen) openHelp();
 
   return shell;
 }
