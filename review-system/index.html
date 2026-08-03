@@ -6817,6 +6817,9 @@ function renderSettings(store, navigate) {
           <span class="settings-info-label">已选择免费额度</span>
           <span class="settings-info-desc">由鱼骨头英语复习系统提供基础翻译体验，无需填写 API Key。</span>
         </div>
+        <p class="settings-info-desc" style="margin:10px 0 0;padding:10px 12px;border:1px dashed var(--accent);border-radius:6px;color:var(--text)">
+          免费额度用于日常生词和短句查询，请避免连续批量请求。额度用尽时，可稍后再试或切换为自定义平台。
+        </p>
         ` : `<div class="settings-row" style="margin-top:14px">
           <div class="settings-info">
             <span class="settings-info-label">API 地址</span>
@@ -7764,7 +7767,7 @@ function buildTranslationMessages(query) {
   ];
 }
 
-async function translateWithAi(query, settings, request = globalThis.fetch) {
+async function translateWithAi(query, settings, request = globalThis.fetch, clientId = "") {
   const apiKey = settings?.aiApiKey?.trim();
   const usingProxy = settings?.aiProvider === "free" || settings?.aiProvider === "proxy";
   if (!usingProxy && !apiKey) throw new Error("请先在设置中保存 API Key。");
@@ -7777,6 +7780,7 @@ async function translateWithAi(query, settings, request = globalThis.fetch) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(usingProxy && clientId ? { "X-Review-User": clientId } : {}),
         ...(usingProxy ? {} : { Authorization: `Bearer ${apiKey}` }),
       },
       body: JSON.stringify(usingProxy
@@ -7798,8 +7802,12 @@ async function translateWithAi(query, settings, request = globalThis.fetch) {
 
   const content = usingProxy ? data?.content?.trim() : data?.choices?.[0]?.message?.content?.trim();
   if (!content) throw new Error("AI 未返回可显示的翻译结果，请稍后重试。");
-  return content;
+  return {
+    content,
+    remaining: usingProxy && Number.isInteger(data?.remaining) ? data.remaining : null,
+  };
 }
+
 
 
 const POSITION_KEY = "review-system:v2:ai-translator-position";
@@ -7916,7 +7924,7 @@ function applyPosition(panel, x, y) {
 function syncAiTranslatorWidget(store, navigate) {
   const state = store.getState();
   const enabled = state.settings?.aiFloatingTranslateEnabled !== false;
-  const apiReady = Boolean(state.settings?.aiApiKey);
+  const apiReady = state.settings?.aiProvider === "free" || Boolean(state.settings?.aiApiKey);
 
   let toggle = document.querySelector(".ai-translator-toggle");
   let panel = document.querySelector(".ai-translator-floating");
@@ -8041,7 +8049,9 @@ function syncAiTranslatorWidget(store, navigate) {
       resultEl.textContent = "请在设置中开启 AI 翻译辅助后再查询。";
       return;
     }
-    if (!store.getState().settings?.aiApiKey) {
+    const settings = store.getState().settings || {};
+    const usesFreeQuota = settings.aiProvider === "free" || settings.aiProvider === "proxy";
+    if (!usesFreeQuota && !settings.aiApiKey) {
       titleEl.textContent = "还没有 API Key";
       resultEl.textContent = "请先前往 AI 设置保存你自己的 API Key。";
       return;
@@ -8053,9 +8063,12 @@ function syncAiTranslatorWidget(store, navigate) {
     titleEl.textContent = "正在查询 AI 翻译";
     resultEl.textContent = "正在获取词义和例句，请稍候。";
     try {
-      const result = await translateWithAi(query, store.getState().settings);
+      const clientId = getOrCreateAnalyticsIdentity(store.getState().userName);
+      const result = await translateWithAi(query, settings, globalThis.fetch, clientId);
       titleEl.textContent = `AI 翻译 · ${query}`;
-      resultEl.textContent = result;
+      resultEl.textContent = result.remaining === null
+        ? result.content
+        : `${result.content}\n\n今日免费额度还可查询 ${result.remaining} 次。`;
       store.track("ai_translation_succeeded", { route: store.getState().route, query_length: query.length });
     } catch (error) {
       titleEl.textContent = "AI 翻译未完成";
