@@ -126,6 +126,9 @@ export function renderSettings(store, navigate) {
           <span class="settings-info-label">已选择免费额度</span>
           <span class="settings-info-desc">由鱼骨头英语复习系统提供基础翻译体验，无需填写 API Key。</span>
         </div>
+        <p class="settings-info-desc" style="margin:10px 0 0;padding:10px 12px;border:1px dashed var(--accent);border-radius:6px;color:var(--text)">
+          免费额度用于日常生词和短句查询，请避免连续批量请求。额度用尽时，可稍后再试或切换为自定义平台。
+        </p>
         ` : `<div class="settings-row" style="margin-top:14px">
           <div class="settings-info">
             <span class="settings-info-label">API 地址</span>

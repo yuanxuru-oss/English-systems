@@ -4,3 +4,7 @@ compatibility_date = "2026-08-02"
 
 [vars]
 DASHSCOPE_MODEL = "qwen-turbo"
+
+[[kv_namespaces]]
+binding = "USAGE"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"

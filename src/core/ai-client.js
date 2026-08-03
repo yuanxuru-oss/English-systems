@@ -25,7 +25,7 @@ export function buildTranslationMessages(query) {
   ];
 }
 
-export async function translateWithAi(query, settings, request = globalThis.fetch) {
+export async function translateWithAi(query, settings, request = globalThis.fetch, clientId = "") {
   const apiKey = settings?.aiApiKey?.trim();
   const usingProxy = settings?.aiProvider === "free" || settings?.aiProvider === "proxy";
   if (!usingProxy && !apiKey) throw new Error("请先在设置中保存 API Key。");
@@ -38,6 +38,7 @@ export async function translateWithAi(query, settings, request = globalThis.fetc
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(usingProxy && clientId ? { "X-Review-User": clientId } : {}),
         ...(usingProxy ? {} : { Authorization: `Bearer ${apiKey}` }),
       },
       body: JSON.stringify(usingProxy
@@ -59,5 +60,8 @@ export async function translateWithAi(query, settings, request = globalThis.fetc
 
   const content = usingProxy ? data?.content?.trim() : data?.choices?.[0]?.message?.content?.trim();
   if (!content) throw new Error("AI 未返回可显示的翻译结果，请稍后重试。");
-  return content;
+  return {
+    content,
+    remaining: usingProxy && Number.isInteger(data?.remaining) ? data.remaining : null,
+  };
 }

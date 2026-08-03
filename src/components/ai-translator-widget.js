@@ -1,4 +1,5 @@
 import { translateWithAi } from "../core/ai-client.js";
+import { getOrCreateAnalyticsIdentity } from "../core/analytics.js";
 
 const POSITION_KEY = "review-system:v2:ai-translator-position";
 
@@ -114,7 +115,7 @@ function applyPosition(panel, x, y) {
 export function syncAiTranslatorWidget(store, navigate) {
   const state = store.getState();
   const enabled = state.settings?.aiFloatingTranslateEnabled !== false;
-  const apiReady = Boolean(state.settings?.aiApiKey);
+  const apiReady = state.settings?.aiProvider === "free" || Boolean(state.settings?.aiApiKey);
 
   let toggle = document.querySelector(".ai-translator-toggle");
   let panel = document.querySelector(".ai-translator-floating");
@@ -239,7 +240,9 @@ export function syncAiTranslatorWidget(store, navigate) {
       resultEl.textContent = "请在设置中开启 AI 翻译辅助后再查询。";
       return;
     }
-    if (!store.getState().settings?.aiApiKey) {
+    const settings = store.getState().settings || {};
+    const usesFreeQuota = settings.aiProvider === "free" || settings.aiProvider === "proxy";
+    if (!usesFreeQuota && !settings.aiApiKey) {
       titleEl.textContent = "还没有 API Key";
       resultEl.textContent = "请先前往 AI 设置保存你自己的 API Key。";
       return;
@@ -251,9 +254,12 @@ export function syncAiTranslatorWidget(store, navigate) {
     titleEl.textContent = "正在查询 AI 翻译";
     resultEl.textContent = "正在获取词义和例句，请稍候。";
     try {
-      const result = await translateWithAi(query, store.getState().settings);
+      const clientId = getOrCreateAnalyticsIdentity(store.getState().userName);
+      const result = await translateWithAi(query, settings, globalThis.fetch, clientId);
       titleEl.textContent = `AI 翻译 · ${query}`;
-      resultEl.textContent = result;
+      resultEl.textContent = result.remaining === null
+        ? result.content
+        : `${result.content}\n\n今日免费额度还可查询 ${result.remaining} 次。`;
       store.track("ai_translation_succeeded", { route: store.getState().route, query_length: query.length });
     } catch (error) {
       titleEl.textContent = "AI 翻译未完成";

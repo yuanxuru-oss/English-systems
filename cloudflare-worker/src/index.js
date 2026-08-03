@@ -5,12 +5,13 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 
 const SYSTEM_PROMPT = "You are an English learning assistant. Reply in concise Chinese. For a word or phrase, give: 1) part of speech, 2) Chinese meaning, 3) one short English example with Chinese translation, 4) a memorable usage tip. Do not use Markdown tables.";
+const DAILY_FREE_LIMIT = 5;
 
 function corsHeaders(origin) {
   return {
     "Access-Control-Allow-Origin": ALLOWED_ORIGINS.has(origin) ? origin : "https://yuanxuru-oss.github.io",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, X-Review-User",
     Vary: "Origin",
   };
 }
@@ -20,6 +21,16 @@ function json(body, status, origin) {
     status,
     headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders(origin) },
   });
+}
+
+function quotaKey(clientId) {
+  return `daily:${new Date().toISOString().slice(0, 10)}:${clientId}`;
+}
+
+function secondsUntilTomorrow() {
+  const now = new Date();
+  const tomorrow = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
+  return Math.max(60, Math.ceil((tomorrow - now.getTime()) / 1000));
 }
 
 export default {
@@ -35,7 +46,18 @@ export default {
     if (typeof query !== "string" || !query.trim() || query.length > 500) {
       return json({ error: { message: "请输入 1 到 500 个字符的单词、短语或句子。" } }, 400, origin);
     }
+    const clientId = request.headers.get("X-Review-User") || "";
+    if (!/^[a-z0-9_-]{8,100}$/i.test(clientId)) {
+      return json({ error: { message: "无法识别当前学习空间，请刷新页面后重试。" } }, 400, origin);
+    }
+    if (!env.USAGE) return json({ error: { message: "免费额度服务尚未完成配置。" } }, 500, origin);
     if (!env.DASHSCOPE_API_KEY) return json({ error: { message: "代理服务尚未配置 AI Key。" } }, 500, origin);
+
+    const key = quotaKey(clientId);
+    const used = Number.parseInt(await env.USAGE.get(key), 10) || 0;
+    if (used >= DAILY_FREE_LIMIT) {
+      return json({ error: { code: "FREE_QUOTA_EXHAUSTED", message: "今日免费额度已用完（每位学习者每天 5 次）。请明天再来，或切换为自定义平台。" } }, 429, origin);
+    }
 
     const upstream = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", {
       method: "POST",
@@ -54,6 +76,8 @@ export default {
 
     const content = data?.choices?.[0]?.message?.content?.trim();
     if (!content) return json({ error: { message: "AI 未返回有效内容。" } }, 502, origin);
-    return json({ content }, 200, origin);
+    const nextUsed = used + 1;
+    await env.USAGE.put(key, String(nextUsed), { expirationTtl: secondsUntilTomorrow() });
+    return json({ content, remaining: DAILY_FREE_LIMIT - nextUsed }, 200, origin);
   },
 };
